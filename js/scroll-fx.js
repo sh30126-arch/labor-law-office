@@ -184,7 +184,10 @@
 
     // 모션 감소 모드: 진행도 갱신을 등록하지 않고, 모든 stage 를 활성으로 둡니다.
     if (prefersReducedMotion) {
-      stages.forEach((stage) => stage.setAttribute('data-active', 'true'));
+      stages.forEach((stage) => {
+        stage.setAttribute('data-active', 'true');
+        stage.style.setProperty('--card-progress', '1');
+      });
       section.style.setProperty('--progress', '1');
       return;
     }
@@ -199,33 +202,38 @@
       const progress =
         total > 0 ? clamp(-rect.top, 0, total) / total : 0;
 
-      // CSS 변수로 진행도를 노출 (CSS 가 변환에 활용 가능)
+      // CSS 변수로 전체 섹션 진행도 노출 (디버그/보조용)
       section.style.setProperty('--progress', progress.toFixed(4));
 
-      // 활성 stage 인덱스 계산 (0..3)
-      // spec 7.2 매핑: 0~0.25 → 0, 0.25~0.50 → 1, 0.50~0.75 → 2, 0.75~1.00 → 3
-      // - Math.floor(progress * 4) 가 정확히 위 매핑과 같음.
-      // - 단, progress 가 1.0 정확히일 때 4 가 나오므로 Math.min 으로 클램핑.
-      const activeIndex = Math.min(3, Math.floor(progress * 4));
+      // 4개 카드 각각의 개별 진행도(0~1) 계산
+      // - 카드 i 는 progress (i*0.18) 부터 (i*0.18 + 0.30) 사이에 0→1 로 활성화
+      // - 윈도우가 겹쳐서 부드러운 cascade 효과
+      // - 마지막 카드(i=3)는 0.54~0.84 구간이므로 80% 스크롤 후 완전 활성
+      const STAGE_COUNT = stages.length;
+      const STAGE_WINDOW = 0.30;     // 카드별 활성화 폭
+      const STAGE_STEP = 0.18;       // 카드 간 시작 간격
 
-      // 각 stage 의 data-active: 활성=true, 지나간=past, 미래=false
-      // CSS 가 [data-active="true"] / [data-active="past"] 로 transform 분기.
+      let activeIndex = 0;
       stages.forEach((stage, idx) => {
-        let value = 'false';
-        if (idx === activeIndex) value = 'true';
-        else if (idx < activeIndex) value = 'past';
-        stage.setAttribute('data-active', value);
+        const start = idx * STAGE_STEP;
+        const end = start + STAGE_WINDOW;
+        const denom = end - start;
+        const cardProgress = denom > 0
+          ? clamp((progress - start) / denom, 0, 1)
+          : 0;
+        stage.style.setProperty('--card-progress', cardProgress.toFixed(3));
+
+        // 가장 활성화된 카드를 마지막에 data-active="true" 로 표시
+        if (cardProgress >= 0.5) {
+          activeIndex = idx;
+        }
       });
 
-      // 하단 진행 도트(.process__progress-dot)도 활성 단계에 맞춰 갱신.
-      // 현재 활성 도트만 aria-current="true", 나머지는 속성 제거.
-      const dots = section.querySelectorAll('.process__progress-dot');
-      dots.forEach((dot, idx) => {
-        if (idx === activeIndex) {
-          dot.setAttribute('aria-current', 'true');
-        } else {
-          dot.removeAttribute('aria-current');
-        }
+      stages.forEach((stage, idx) => {
+        stage.setAttribute(
+          'data-active',
+          idx === activeIndex && progress > 0.05 ? 'true' : 'false'
+        );
       });
 
       ticking = false;
