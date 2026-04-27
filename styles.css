@@ -118,3 +118,1891 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
+
+
+/* ============================================================
+   [3] Typography & 기본 body
+   - 사이트 전반의 기본 폰트·줄간격·색
+   ============================================================ */
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: 1.75;
+  color: var(--ink);
+  background: var(--paper);
+  font-feature-settings: "ss06" on; /* Pretendard 한글 가독성 옵션 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 헤딩 기본 — 각 섹션에서 폰트 사이즈는 따로 지정 */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+/* 인용 기본 */
+blockquote {
+  font-style: normal;
+}
+
+
+/* ============================================================
+   [4] Layout 유틸리티
+   - .container: 사이트 공통 컨테이너 폭 제어
+   - .sr-only: 스크린리더 전용 (시각 숨김)
+   - .is-dark / .is-light: 섹션 테마 보조
+   ============================================================ */
+
+/* 공통 컨테이너 — 모든 섹션에서 max-width 제어 */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+}
+
+/* 스크린리더 전용 (시각적으론 보이지 않음) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 다크/라이트 테마 보조 클래스 */
+.is-dark { background: var(--ink); color: rgba(255,255,255,0.9); }
+.is-light { background: var(--paper); color: var(--ink); }
+
+
+/* ============================================================
+   [5] 공통 컴포넌트 — 버튼, eyebrow 라벨
+   ============================================================ */
+
+/* 모든 버튼 공통 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease, transform 200ms ease;
+  white-space: nowrap;
+}
+
+/* 버튼 사이즈 변형 */
+.btn--sm { padding: var(--space-2) var(--space-4); font-size: var(--fs-small); }
+.btn--lg { padding: var(--space-4) var(--space-6); font-size: var(--fs-body); }
+
+/* 1차 CTA — 브랜드 블루 채움 */
+.btn--primary {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+.btn--primary:hover {
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+}
+
+/* 2차 CTA — ghost (다크/라이트 자동 적응) */
+.btn--ghost {
+  background: transparent;
+  color: currentColor;
+  border-color: currentColor;
+  opacity: 0.9;
+}
+.btn--ghost:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* 라이트 섹션의 ghost 버튼 — 보더가 잉크 색 */
+.is-light .btn--ghost,
+.contact .btn--ghost {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.is-light .btn--ghost:hover,
+.contact .btn--ghost:hover {
+  background: rgba(10, 22, 40, 0.05);
+}
+
+/* 섹션 상단의 작은 라벨 (eyebrow) */
+.eyebrow {
+  display: inline-block;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   [6] Header — 고정 상단 헤더
+   - 초기 transparent (Hero 위)
+   - 스크롤 80px 이상 → .header--solid 토글 (JS)
+   ============================================================ */
+
+/* 헤더 공통 (.site-header alias 지원) */
+.header,
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  color: #FFFFFF;
+  transition: background 220ms ease, color 220ms ease, border-color 220ms ease;
+}
+
+@media (min-width: 768px) {
+  .header,
+  .site-header {
+    height: 72px;
+  }
+}
+
+/* solid 상태 — 스크롤 후 흰 배경 + 다크 글자 */
+.header--solid,
+.site-header--scrolled {
+  background: rgba(252, 252, 253, 0.92);
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* 헤더 내부 정렬 컨테이너 */
+.header__inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+/* 워드마크 leehae */
+.header__mark {
+  font-family: var(--font-mark);
+  font-weight: 500;
+  font-size: var(--fs-mark);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* 데스크톱 메뉴 — 768px 미만에서는 숨김 */
+.header__nav {
+  display: none;
+  align-items: center;
+  gap: var(--space-6);
+}
+@media (min-width: 768px) {
+  .header__nav { display: flex; }
+}
+
+/* 메뉴 링크 */
+.header__nav a {
+  font-size: var(--fs-small);
+  font-weight: 500;
+  opacity: 0.85;
+  transition: opacity 200ms ease;
+}
+.header__nav a:hover { opacity: 1; }
+
+/* 헤더 우측 액션 영역 (CTA + 햄버거) */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* 헤더 CTA 버튼 — solid 상태에선 채움 블루 */
+.header--solid .header__cta,
+.site-header--scrolled .header__cta {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+}
+
+/* 모바일 햄버거 버튼 (≤767px) */
+.header__burger {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.header__burger span {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+.header__burger span::before,
+.header__burger span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 22px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 220ms ease;
+}
+.header__burger span::before { top: -7px; }
+.header__burger span::after { top: 7px; }
+
+@media (min-width: 768px) {
+  .header__burger { display: none; }
+}
+
+/* 모바일 풀스크린 메뉴 (햄버거 클릭 시 활성) */
+.header__menu--mobile {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  color: #FFFFFF;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+.header__menu--mobile.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.header__menu--mobile a {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+
+/* ============================================================
+   [7] Hero — 풀 뷰포트 다크 섹션
+   ============================================================ */
+
+/* Hero 컨테이너 — 100vh, 좌측 정렬 세로 중앙 */
+.hero {
+  position: relative;
+  min-height: 700px;
+  height: 100vh;
+  background: var(--ink);
+  color: #FFFFFF;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* Hero 우측하단 옅은 그라디언트 (깊이감) */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 80%, rgba(30, 64, 175, 0.18), transparent 60%);
+  pointer-events: none;
+}
+
+/* Hero 내부 컨테이너 */
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  padding-block: var(--space-9);
+}
+
+/* Hero 상단 작은 라벨 */
+.hero__eyebrow {
+  display: inline-block;
+  color: var(--accent);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-5);
+}
+
+/* Hero 메인 헤드라인 */
+.hero__title {
+  font-size: var(--fs-display);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: #FFFFFF;
+  margin-bottom: var(--space-5);
+}
+
+/* Hero 리드 문장 */
+.hero__lead {
+  max-width: 560px;
+  font-size: var(--fs-lead);
+  font-weight: 500;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: var(--space-7);
+  letter-spacing: -0.005em;
+}
+
+/* Hero CTA 영역 */
+.hero__cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+@media (min-width: 768px) {
+  .hero__cta {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Hero 다크용 ghost 버튼 — 흰 보더 */
+.hero__cta .btn--ghost {
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.hero__cta .btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #FFFFFF;
+}
+
+/* 하단 스크롤 인디케이터 */
+.hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-6);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-caption);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  z-index: 1;
+}
+.hero__scroll::after {
+  content: "";
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.4);
+  animation: scroll-pulse 2s ease-in-out infinite;
+}
+
+/* 스크롤 인디케이터 펄스 */
+@keyframes scroll-pulse {
+  0%, 100% { transform: scaleY(0.4); transform-origin: top; opacity: 0.4; }
+  50%      { transform: scaleY(1); transform-origin: top; opacity: 1; }
+}
+
+
+/* ============================================================
+   [8] About — 라이트, 큰 인용 헤드라인
+   ============================================================ */
+
+/* About 섹션 베이스 */
+.about {
+  background: var(--paper);
+  color: var(--ink);
+  padding: var(--section-py) 0;
+}
+
+/* About 내부 폭 제어 */
+.about__inner {
+  max-width: 860px;
+}
+
+/* About eyebrow — 색상은 브랜드 블루 */
+.about__eyebrow {
+  display: inline-block;
+  color: var(--primary);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-5);
+}
+
+/* About 큰 인용 헤드라인 — 좌측 블루 라인 */
+.about__quote {
+  position: relative;
+  padding-left: var(--space-5);
+  border-left: 4px solid var(--primary);
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  margin-bottom: var(--space-7);
+}
+
+/* About 본문 단락 */
+.about__body p {
+  font-size: var(--fs-lead);
+  line-height: 1.85;
+  color: var(--ink);
+  max-width: 720px;
+  letter-spacing: -0.005em;
+}
+.about__body p + p {
+  margin-top: var(--space-5);
+}
+
+
+/* ============================================================
+   [9] Practice Areas — 다크, 6장 카드 그리드
+   ============================================================ */
+
+/* Practice 섹션 베이스 — 다크 */
+.practice {
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.9);
+  padding: var(--section-py) 0;
+}
+
+/* Practice 상단 헤더 영역 */
+.practice__head {
+  margin-bottom: var(--space-8);
+  max-width: 720px;
+}
+
+/* Practice eyebrow — 골드 */
+.practice__eyebrow {
+  display: inline-block;
+  color: var(--accent);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-5);
+}
+
+/* Practice 메인 타이틀 */
+.practice__title {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  margin-bottom: var(--space-4);
+}
+
+/* Practice 리드 */
+.practice__lead {
+  font-size: var(--fs-lead);
+  font-weight: 500;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Practice 카드 그리드 — 모바일 1열 */
+.practice__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid var(--line-dark);
+}
+
+/* 태블릿 — 2열 */
+@media (min-width: 768px) {
+  .practice__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 데스크톱 — 3열 */
+@media (min-width: 1024px) {
+  .practice__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Practice 개별 카드 */
+.practice__card {
+  position: relative;
+  padding: var(--space-7) var(--space-6);
+  border-bottom: 1px solid var(--line-dark);
+  border-right: 1px solid var(--line-dark);
+  transition: background 200ms ease;
+  cursor: pointer;
+}
+
+/* 모바일에서 우측 보더 제거 (1열이라 의미 없음) */
+@media (max-width: 767px) {
+  .practice__card { border-right: none; }
+}
+
+/* 태블릿 마지막 칼럼 우측 보더 제거 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .practice__card:nth-child(2n) { border-right: none; }
+}
+
+/* 데스크톱 마지막 칼럼 우측 보더 제거 */
+@media (min-width: 1024px) {
+  .practice__card:nth-child(3n) { border-right: none; }
+}
+
+/* Practice 카드 호버 — 배경 살짝 밝게 */
+.practice__card:hover {
+  background: var(--ink-soft);
+}
+
+/* 카드 헤더 행 — 번호 + 한글 타이틀 */
+.practice__card-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+/* 카드 골드 번호 */
+.practice__num {
+  font-family: var(--font-mark);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* 카드 한글 타이틀 */
+.practice__name {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+/* 카드 영문 부제 */
+.practice__sub {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+/* 카드 본문 설명 */
+.practice__desc {
+  font-size: var(--fs-small);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: var(--space-5);
+}
+
+/* 카드 하단 화살표 — 호버 시 우측 슬라이드 */
+.practice__more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-caption);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.practice__card:hover .practice__more {
+  opacity: 1;
+  transform: translateX(0);
+}
+.practice__more::after {
+  content: "→";
+  transition: transform 200ms ease;
+}
+.practice__card:hover .practice__more::after {
+  transform: translateX(5px);
+}
+
+
+/* ============================================================
+   [10] Process — sticky pin 3D (핵심 효과)
+   - section height: 400vh (4단계 × 100vh)
+   - 내부 sticky 영역이 viewport 가득 고정
+   - --progress (0~1) JS가 업데이트 → 카드 transform 변화
+   ============================================================ */
+
+/* Process 섹션 — 4뷰포트 길이 */
+.process {
+  position: relative;
+  background: var(--paper-soft);
+  color: var(--ink);
+  height: 400vh;
+}
+
+/* sticky 컨테이너 — 100vh 고정 */
+.process__sticky,
+.process__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* sticky 내부 컨테이너 */
+.process__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  align-items: stretch;
+  height: 100%;
+  padding-block: var(--space-9);
+}
+
+/* Process 상단 헤드 (eyebrow + 타이틀) */
+.process__head {
+  text-align: center;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.process__eyebrow {
+  display: inline-block;
+  color: var(--primary);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+.process__title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+/* Process 무대 영역 — 카드 4개가 겹쳐서 쌓이는 공간 */
+.process__stages {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px; /* 3D 효과를 위한 원근 */
+  min-height: 0;
+}
+
+/* 카드 4개 공통 — 절대 위치로 한 자리에 겹쳐둠 */
+.process__stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% - var(--space-5) * 2);
+  max-width: 720px;
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: var(--space-7) var(--space-6);
+  box-shadow: 0 30px 60px -30px rgba(10, 22, 40, 0.15);
+  transform-style: preserve-3d;
+  transition: opacity 400ms ease,
+              transform 600ms var(--ease-out-expo);
+  /* 비활성 기본 — 아래에서 살짝 들어와 있음 (3D rotateY 적용) */
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 40px)) scale(0.96) rotateY(8deg);
+  z-index: 0;
+}
+
+@media (min-width: 768px) {
+  .process__stage {
+    padding: var(--space-8) var(--space-7);
+  }
+}
+
+/* 활성 카드 — 전면, 정자세 (translateZ로 3D 스택 가장 앞) */
+.process__stage[data-active="true"] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1) rotateY(0deg) translateZ(0);
+  z-index: 2;
+}
+
+/* 지나간 카드 — 위로 페이드아웃 (3D로 살짝 뒤로) */
+.process__stage[data-active="past"] {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% - 40px)) scale(0.96) rotateY(-8deg);
+  z-index: 1;
+}
+
+/* 카드 내부 헤더 (라벨 + 번호) */
+.process__stage-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+/* 카드 영문 라벨 */
+.process__stage-eyebrow {
+  font-family: var(--font-mark);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+/* 카드 단계 번호 — 큰 회색 */
+.process__stage-num {
+  margin-left: auto;
+  font-family: var(--font-mark);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  color: var(--silver);
+  opacity: 0.5;
+}
+
+/* 카드 한글 타이틀 */
+.process__stage-title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: var(--space-4);
+}
+
+/* 카드 설명 */
+.process__stage-body {
+  font-size: var(--fs-lead);
+  line-height: 1.7;
+  color: var(--silver);
+}
+
+/* 진행 도트 4개 — 하단 가운데 */
+.process__progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* 도트 기본 */
+.process__progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--line);
+  transition: width 300ms ease, background 300ms ease;
+}
+
+/* 활성 도트 — 캡슐 형태로 확장 */
+.process__progress-dot[aria-current="true"] {
+  width: 24px;
+  background: var(--primary);
+}
+
+/* Process 하단 KPI 숫자 (마지막 stage 또는 head 옆) */
+.process__metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+  text-align: center;
+}
+@media (min-width: 768px) {
+  .process__metrics { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* KPI 큰 숫자 */
+.process__metric-value {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+/* KPI 라벨 */
+.process__metric-label {
+  font-size: var(--fs-small);
+  color: var(--silver);
+}
+
+
+/* ============================================================
+   [11] Profile — 대표 노무사
+   ============================================================ */
+
+/* Profile 섹션 베이스 — 라이트 */
+.profile {
+  background: var(--paper);
+  color: var(--ink);
+  padding: var(--section-py) 0;
+}
+
+/* Profile 그리드 — 모바일 1단, 데스크톱 2단 */
+.profile__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-7);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .profile__grid {
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--space-9);
+  }
+}
+
+/* 사진 영역 — 1:1 placeholder */
+.profile__photo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--paper-soft);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--silver);
+  font-size: var(--fs-small);
+  letter-spacing: 0.05em;
+  overflow: hidden;
+}
+
+/* 사진 우측 하단 명함 박스 */
+.profile__namecard {
+  position: absolute;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  background: #FFFFFF;
+  padding: var(--space-4) var(--space-5);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -20px rgba(10, 22, 40, 0.25);
+  max-width: 80%;
+}
+
+/* 명함 1줄 — 이름 */
+.profile__namecard-name {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin-bottom: var(--space-1);
+}
+
+/* 명함 2줄 — 영문 라벨 */
+.profile__namecard-sub {
+  font-size: var(--fs-caption);
+  color: var(--silver);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* 우측 텍스트 영역 */
+.profile__bio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* eyebrow */
+.profile__eyebrow {
+  display: inline-block;
+  color: var(--primary);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* 타이틀 */
+.profile__title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+/* 본문 */
+.profile__body p {
+  font-size: var(--fs-lead);
+  line-height: 1.85;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.profile__body p + p {
+  margin-top: var(--space-4);
+}
+
+/* 약력 리스트 */
+.profile__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+.profile__list li {
+  font-size: var(--fs-small);
+  color: var(--silver);
+  line-height: 1.7;
+}
+
+
+/* ============================================================
+   [12] Insights — 칼럼 카드 3개
+   ============================================================ */
+
+/* Insights 섹션 베이스 — 라이트 (paper-soft) */
+.insights {
+  background: var(--paper-soft);
+  color: var(--ink);
+  padding: var(--section-py) 0;
+}
+
+/* Insights 상단 헤드 */
+.insights__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .insights__head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.insights__head-text {
+  max-width: 720px;
+}
+
+.insights__eyebrow {
+  display: inline-block;
+  color: var(--primary);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
+.insights__title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: var(--space-3);
+}
+
+.insights__lead {
+  font-size: var(--fs-lead);
+  color: var(--silver);
+  line-height: 1.6;
+}
+
+/* "전체 칼럼 보기 →" 링크 */
+.insights__more {
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--primary);
+  white-space: nowrap;
+  transition: opacity 200ms ease;
+}
+.insights__more:hover { opacity: 0.75; }
+
+/* 카드 그리드 — 모바일 1열 */
+.insights__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .insights__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .insights__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* 개별 카드 */
+.insights__card {
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 300ms ease, box-shadow 300ms ease;
+  cursor: pointer;
+}
+.insights__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 30px 60px -30px rgba(10, 22, 40, 0.18);
+}
+
+/* 카드 썸네일 placeholder */
+.insights__thumb {
+  aspect-ratio: 16 / 10;
+  background: var(--paper-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--silver);
+  font-size: var(--fs-caption);
+  overflow: hidden;
+}
+.insights__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 300ms ease;
+}
+.insights__card:hover .insights__thumb img {
+  transform: scale(1.02);
+}
+
+/* 카드 본문 */
+.insights__body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+/* 카테고리 라벨 */
+.insights__category {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+}
+
+/* 카드 타이틀 — 2줄 클램프 */
+.insights__card-title {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 발췌 — 3줄 클램프 */
+.insights__excerpt {
+  font-size: var(--fs-small);
+  color: var(--silver);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 카드 메타 (작성자·날짜) */
+.insights__meta {
+  margin-top: auto;
+  font-size: var(--fs-caption);
+  color: var(--silver);
+}
+
+
+/* ============================================================
+   [13] Contact — 오시는 길
+   ============================================================ */
+
+/* Contact 섹션 베이스 — 라이트 */
+.contact {
+  background: var(--paper);
+  color: var(--ink);
+  padding: var(--section-py) 0;
+}
+
+/* Contact 그리드 — 모바일 1단, 데스크톱 2단 */
+.contact__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-7);
+}
+
+@media (min-width: 1024px) {
+  .contact__grid {
+    grid-template-columns: 1fr 1.1fr;
+    gap: var(--space-8);
+  }
+}
+
+/* 좌측 정보 영역 */
+.contact__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.contact__eyebrow {
+  display: inline-block;
+  color: var(--primary);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.contact__title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+/* 정보 리스트 */
+.contact__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* 한 행 (라벨 + 값) */
+.contact__row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--space-4);
+  align-items: baseline;
+}
+
+.contact__label {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--silver);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.contact__value {
+  font-size: var(--fs-small);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+/* CTA 버튼 묶음 */
+.contact__cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+@media (min-width: 768px) {
+  .contact__cta { flex-direction: row; }
+}
+
+/* 우측 지도 placeholder */
+.contact__map {
+  aspect-ratio: 16 / 10;
+  background: var(--paper-soft);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--silver);
+  font-size: var(--fs-small);
+}
+
+
+/* ============================================================
+   [14] Footer
+   ============================================================ */
+
+/* 사이트 푸터 */
+.footer,
+.site-footer {
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.5);
+  padding-block: var(--space-7);
+  font-size: var(--fs-caption);
+  line-height: 1.7;
+}
+
+/* 푸터 내부 컨테이너 */
+.footer__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* 1행 — 워드마크 + 메뉴 */
+.footer__row-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line-dark);
+}
+
+@media (min-width: 1024px) {
+  .footer__row-top {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+/* 푸터 워드마크 */
+.footer__mark {
+  font-family: var(--font-mark);
+  font-weight: 500;
+  font-size: var(--fs-mark);
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1;
+}
+
+/* 푸터 메뉴 — 작은 텍스트 링크 */
+.footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.footer__nav a {
+  font-size: var(--fs-caption);
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 200ms ease;
+}
+.footer__nav a:hover { color: rgba(255, 255, 255, 0.95); }
+
+/* 2행 — 사업자 정보 */
+.footer__biz {
+  font-size: var(--fs-caption);
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.7;
+}
+.footer__biz p + p { margin-top: var(--space-1); }
+
+/* 3행 — 면책 + 카피 */
+.footer__legal {
+  font-size: var(--fs-caption);
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.7;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line-dark);
+}
+
+
+/* ============================================================
+   [15] Floating AI 챗 버튼 (.fab / .chatbot-fab)
+   ============================================================ */
+
+/* FAB 공통 — 우측 하단 고정 원형 */
+.fab,
+.chatbot-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 90;
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  border: 0;
+  background: var(--primary);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -8px rgba(30, 64, 175, 0.45);
+  transition: background 200ms ease, transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+}
+
+@media (min-width: 768px) {
+  .fab,
+  .chatbot-fab {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* FAB 호버 — 살짝 떠오름 + 색 변화 */
+.fab:hover,
+.chatbot-fab:hover {
+  background: var(--primary-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px -8px rgba(30, 64, 175, 0.55);
+}
+
+/* FAB 내부 SVG 아이콘 사이즈 */
+.fab svg,
+.chatbot-fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* FAB 좌측 라벨 칩 — 호버 시 슬라이드 등장 */
+.chatbot-fab__chip {
+  position: absolute;
+  right: calc(100% + var(--space-3));
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  background: #FFFFFF;
+  color: var(--ink);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 9999px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 12px 28px -8px rgba(10, 22, 40, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.chatbot-fab:hover .chatbot-fab__chip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* 모바일 — Hero 통과 전 FAB 숨김 (JS가 .is-visible 토글) */
+.chatbot-fab--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   [16] AI 채팅 모달 (.ai-modal / .chatbot-modal)
+   - 진입: fade + slide-up
+   - 닫기: 배경 클릭 / X 버튼 / Esc (JS 처리)
+   ============================================================ */
+
+/* 모달 컨테이너 — 풀스크린 dim */
+.ai-modal,
+.chatbot-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: none;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+/* 열린 상태 — display 블록 + opacity 1 */
+.ai-modal.is-open,
+.chatbot-modal--open,
+.chatbot-modal.is-open {
+  display: block;
+  opacity: 1;
+}
+
+/* 배경 오버레이 (dim + blur) */
+.ai-modal__overlay,
+.chatbot-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 22, 40, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 모달 박스 — 데스크톱 우측 하단, 모바일 화면 중앙 */
+.ai-modal__box,
+.chatbot-modal__box {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 16px;
+  bottom: 96px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  box-shadow: 0 40px 80px -20px rgba(10, 22, 40, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* 진입 애니메이션 — 살짝 아래에서 위로 */
+  transform: translateY(24px) scale(0.98);
+  opacity: 0;
+  transition: opacity 220ms ease,
+              transform 320ms var(--ease-out-expo);
+}
+
+.ai-modal.is-open .ai-modal__box,
+.chatbot-modal--open .chatbot-modal__box,
+.chatbot-modal.is-open .chatbot-modal__box {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+@media (min-width: 768px) {
+  .ai-modal__box,
+  .chatbot-modal__box {
+    left: auto;
+    top: auto;
+    right: 24px;
+    bottom: 96px;
+    width: 420px;
+    height: 640px;
+    max-height: calc(100vh - 120px);
+  }
+}
+
+/* 모달 헤더 */
+.ai-modal__header,
+.chatbot-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+/* 헤더 좌측 (아바타 + 타이틀) */
+.chatbot-modal__title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* 헤더 아바타 — 작은 원 */
+.chatbot-modal__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: var(--paper-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.chatbot-modal__avatar::before { content: "⚖️"; }
+
+/* 모달 타이틀 */
+.chatbot-modal__title {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+/* 모달 서브 라벨 */
+.chatbot-modal__sub {
+  font-size: var(--fs-caption);
+  color: var(--silver);
+}
+
+/* 닫기 버튼 X */
+.chatbot-modal__close {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 0;
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+.chatbot-modal__close:hover {
+  background: var(--line);
+}
+
+
+/* ============================================================
+   [17] API 키 입력 영역 (.api-key-section)
+   ============================================================ */
+
+.chatbot-modal__api-key,
+.api-key-section,
+#api-key-section {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: #FFFFFF;
+}
+
+/* 안내 문구 */
+.chatbot-modal__api-key p,
+.api-key-section p,
+#api-key-section p {
+  font-size: var(--fs-small);
+  color: var(--silver);
+  line-height: 1.6;
+}
+
+/* 입력창 */
+.chatbot-modal__api-key input,
+.api-key-section input,
+#api-key-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-size: var(--fs-small);
+  outline: none;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.chatbot-modal__api-key input:focus,
+.api-key-section input:focus,
+#api-key-input:focus {
+  border-color: var(--primary);
+  background: #FFFFFF;
+}
+
+/* 저장 버튼 — 좌측 정렬 */
+.chatbot-modal__api-key button,
+.api-key-section button,
+#api-key-save-btn {
+  align-self: flex-start;
+}
+
+/* 보안 안내문 (작은 글자) */
+.chatbot-modal__api-key small,
+.api-key-section small {
+  font-size: var(--fs-caption);
+  color: var(--silver);
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   [18] 채팅 본체 (.chatbot-modal__chat / #chat-container)
+   ============================================================ */
+
+.chatbot-modal__chat,
+#chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #FFFFFF;
+}
+
+/* 메시지 리스트 컨테이너 — 스크롤 영역 */
+.chatbot-modal__messages,
+#chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  scroll-behavior: smooth;
+}
+
+
+/* ============================================================
+   [19] 채팅 메시지 버블 (.message)
+   - .message-user: 사용자 (우측, 블루)
+   - .message-bot: 봇 (좌측, 회색)
+   - 줄바꿈 보존 (white-space: pre-wrap)
+   ============================================================ */
+
+/* 메시지 행 공통 */
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+/* 봇 메시지 — 좌측 정렬 */
+.message-bot {
+  justify-content: flex-start;
+}
+
+/* 사용자 메시지 — 우측 정렬 (avatar 숨김) */
+.message-user {
+  justify-content: flex-end;
+}
+
+/* 봇 좌측 아바타 (⚖️) */
+.message__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: var(--paper-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.message__avatar::before { content: "⚖️"; }
+
+/* 사용자 행에는 아바타 없음 */
+.message-user .message__avatar {
+  display: none;
+}
+
+/* 말풍선 공통 */
+.message__bubble {
+  max-width: 80%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  white-space: pre-wrap; /* 줄바꿈 보존 */
+  word-break: break-word;
+}
+
+/* 봇 말풍선 — 라이트 회색, 좌측 꼬리 */
+.message-bot .message__bubble {
+  background: var(--paper-soft);
+  color: var(--ink);
+  border-radius: 16px 16px 16px 4px;
+}
+
+/* 사용자 말풍선 — 블루 채움, 우측 꼬리 */
+.message-user .message__bubble {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-radius: 16px 16px 4px 16px;
+}
+
+
+/* ============================================================
+   [20] 타이핑 인디케이터 (.typing)
+   - 점 3개 가로로 통통 튀는 애니메이션
+   - ::before (왼쪽) + span (가운데) + ::after (오른쪽)
+   ============================================================ */
+
+/* 타이핑 컨테이너 — 봇 말풍선 자리에 들어감 */
+.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper-soft);
+  border-radius: 16px 16px 16px 4px;
+}
+
+/* 점 3개 — span (가운데) + ::before (왼쪽) + ::after (오른쪽) */
+.typing span,
+.typing::before,
+.typing::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--silver);
+  animation: typing-bounce 1.4s ease-in-out infinite;
+}
+
+.typing::before { animation-delay: 0s; }
+.typing span    { animation-delay: 0.2s; }
+.typing::after  { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%           { transform: translateY(-6px); opacity: 1; }
+}
+
+
+/* ============================================================
+   [21] 채팅 입력 폼 (.chatbot-modal__form / #chat-form)
+   ============================================================ */
+
+.chatbot-modal__form,
+#chat-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: #FFFFFF;
+  border-top: 1px solid var(--line);
+}
+
+/* 텍스트 인풋 — 라이트 회색 박스 */
+.chatbot-modal__form input,
+#chat-form input,
+#chat-input {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-size: var(--fs-small);
+  outline: none;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+.chatbot-modal__form input:focus,
+#chat-form input:focus,
+#chat-input:focus {
+  background: #FFFFFF;
+  border-color: var(--primary);
+}
+
+/* 전송 버튼 — 36px 원형, 블루 */
+.chatbot-modal__form button,
+#chat-form button,
+#chat-send-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 0;
+  background: var(--primary);
+  color: #FFFFFF;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 200ms ease, transform 200ms ease;
+}
+.chatbot-modal__form button:hover,
+#chat-form button:hover,
+#chat-send-btn:hover {
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+}
+
+/* 모달 푸터 (작은 면책 문구) */
+.chatbot-modal__footer {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--fs-caption);
+  color: var(--silver);
+  background: var(--paper-soft);
+  line-height: 1.5;
+  text-align: center;
+}
+
+
+/* ============================================================
+   [22] Reveal 애니메이션 — 스크롤 시 페이드 + 슬라이드업
+   - JS IntersectionObserver가 .revealed (또는 .is-revealed) 토글
+   ============================================================ */
+
+/* 초기 상태 — 보이지 않음, 아래로 살짝 내려가 있음 */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 700ms var(--ease-out-expo),
+              transform 700ms var(--ease-out-expo);
+  /* 그리드 stagger — JS가 --i 인덱스 부여하면 순차 페이드 */
+  transition-delay: calc(var(--i, 0) * 80ms);
+  will-change: opacity, transform;
+}
+
+/* 활성 상태 — 본 자리로 페이드인 (.revealed / .is-revealed 둘 다 지원) */
+.reveal.revealed,
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ============================================================
+   [23] 반응형 (Mobile-first)
+   - 기본: ~767px (모바일)
+   - 768px+: 태블릿
+   - 1024px+: 데스크톱
+   - 1280px+: 와이드 (컨테이너 max-width만)
+   ============================================================ */
+
+/* 와이드 데스크톱 — 컨테이너만 살짝 더 넉넉 */
+@media (min-width: 1280px) {
+  :root {
+    --container-max: 1240px;
+  }
+}
+
+/* 모바일에서 Hero CTA — 풀폭 버튼처럼 */
+@media (max-width: 767px) {
+  .hero__cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+/* ============================================================
+   [24] prefers-reduced-motion — 모션 민감 사용자 보호
+   - 애니메이션·트랜지션·sticky 효과 모두 비활성
+   - !important 사용은 이 블록 한정 (스펙 9.3 명시 예외)
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* reveal 즉시 표시 */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Process sticky pin 비활성 — 카드를 정적 stack으로 */
+  .process { height: auto !important; }
+  .process__sticky,
+  .process__pin {
+    position: static !important;
+    height: auto !important;
+  }
+  .process__stage { perspective: none !important; }
+  .process__stage {
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    margin-block: var(--space-5);
+  }
+
+  /* Hero 스크롤 인디케이터 펄스 정지 */
+  .hero__scroll::after {
+    animation: none !important;
+  }
+}
