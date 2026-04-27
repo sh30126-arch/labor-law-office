@@ -9,7 +9,7 @@
 
 /* ============================================================
    [1] CSS 변수 (Design Tokens)
-   - 컬러·폰트·사이즈·spacing 모든 결정값을 한곳에 둔다
+   - 컴러·폰트·사이즈·spacing 모든 결정값을 한곳에 둔다
    - 값 변경 시 이 블록만 손대면 사이트 전체에 반영됨
    ============================================================ */
 
@@ -30,7 +30,7 @@
   --accent: #C8A961;
 
   /* ---- 회색 텍스트·라인 ---- */
-  --silver: #6B7280;       /* 보조 텍스트, 캡션 */
+  --silver: #6B7280;       /* 보조 텍스트, 캐션 */
   --line: #E5E7EB;         /* 라이트 섹션 구분선 */
   --line-dark: #1E3050;    /* 다크 섹션 구분선 */
 
@@ -46,7 +46,7 @@
   --fs-lead: clamp(1.125rem, 1.6vw, 1.375rem); /* 리드 문장 */
   --fs-body: 1rem;                              /* 본문 16px */
   --fs-small: 0.9375rem;                        /* 보조 15px */
-  --fs-caption: 0.8125rem;                      /* 캡션 13px */
+  --fs-caption: 0.8125rem;                      /* 캐션 13px */
   --fs-mark: 1.125rem;                          /* leehae 워드마크 */
 
   /* ---- Spacing scale (8px base) ---- */
@@ -117,6 +117,13 @@ a {
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+}
+
+/* HTML hidden 속성 우선순위 보장
+   - 일부 ID 셀렉터(예: #chat-container { display: flex })가
+     UA 기본 [hidden]{display:none} 을 오버라이드하지 않도록 강제. */
+[hidden] {
+  display: none !important;
 }
 
 
@@ -421,7 +428,7 @@ blockquote {
   align-items: center;
 }
 
-/* Hero 우측하단 옅은 그라디언트 (깊이감) */
+/* Hero 우측하단 옷은 그라디언트 (깊이감) */
 .hero::after {
   content: "";
   position: absolute;
@@ -754,33 +761,37 @@ blockquote {
    - --progress (0~1) JS가 업데이트 → 카드 transform 변화
    ============================================================ */
 
-/* Process 섹션 — 가로 4단계 row 레이아웃 + 배경 이미지
-   상담·합의 분위기의 사진을 깔되, 흰색 오버레이 92%로 가독성 확보. */
+/* Process 섹션 — sticky pin 복원 + 4카드 가로 + 3D 스크롤 인터랙션
+   - 섹션 자체 height: 200vh (1뷰포트 추가 스크롤이 3D 회전에 사용됨)
+   - 내부 .process__sticky 가 100vh 동안 화면에 고정
+   - 그 동안 4개 카드가 perspective + rotateX/Y 변화로 차례로 활성화
+   - 사용자가 페이지 위로 빠져나가면 자연스럽게 다음 섹션으로 진행
+*/
 .process {
   position: relative;
   color: var(--ink);
-  padding: var(--section-py) 0;
+  height: 200vh;
   background-color: var(--paper-soft);
+  /* 사진을 더 잘 보이게 — 오버레이 75~85% 로 낮춤 */
   background-image:
-    linear-gradient(180deg, rgba(244, 246, 250, 0.94) 0%, rgba(244, 246, 250, 0.98) 100%),
+    linear-gradient(180deg, rgba(244, 246, 250, 0.78) 0%, rgba(244, 246, 250, 0.92) 100%),
     url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: scroll;
+  overflow: hidden;
 }
 
-/* 헤드 영역만 사진이 살짝 비치도록 별도 처리 (옵션) */
-.process__head {
-  position: relative;
-  z-index: 1;
-}
-
-/* 기존 sticky 래퍼 — 일반 블록으로 전환 (영향 무) */
+/* sticky 컨테이너 — 100vh 동안 pin */
 .process__sticky,
 .process__pin {
-  position: static;
-  height: auto;
-  display: block;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 }
 
 /* 내부 컨테이너 */
@@ -790,6 +801,8 @@ blockquote {
   flex-direction: column;
   gap: var(--space-7);
   align-items: stretch;
+  width: 100%;
+  padding-block: var(--space-7);
 }
 
 /* Process 상단 헤드 (eyebrow + 타이틀) */
@@ -817,13 +830,15 @@ blockquote {
   color: var(--ink);
 }
 
-/* Process 카드 그리드 — 모바일 1열, 태블릿 2열, 데스크톱 4열 */
+/* Process 카드 그리드 — 4카드 가로, 3D perspective 컨테이너 */
 .process__stages {
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-5);
   margin-top: var(--space-7);
+  perspective: 1400px;       /* 3D 원근감 — Apple 키노트 카드 회전 효과 */
+  perspective-origin: 50% 30%;
 }
 
 @media (min-width: 768px) {
@@ -840,8 +855,9 @@ blockquote {
   }
 }
 
-/* 단계 카드 — 흰 배경, 가로 그리드 안에 단순 배치 */
+/* 단계 카드 — 흰 배경 + 3D transform 기본값 (스크롤 진행도에 따라 0→1로 정자세) */
 .process__stage {
+  --card-progress: 0;          /* JS 가 카드별 0~1 진행도 셋팅 */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -850,19 +866,18 @@ blockquote {
   border-radius: 20px;
   padding: var(--space-6) var(--space-5);
   box-shadow: 0 20px 40px -25px rgba(10, 22, 40, 0.12);
-  transition: transform 280ms var(--ease-out-expo),
+  transform-style: preserve-3d;
+  transform-origin: 50% 70%;
+  transition: transform 600ms var(--ease-out-expo),
+              opacity 500ms ease,
               box-shadow 280ms ease,
               border-color 280ms ease;
-  opacity: 1;
-  transform: none;
+  opacity: calc(0.25 + var(--card-progress) * 0.75);
+  transform:
+    rotateX(calc((1 - var(--card-progress)) * 28deg))
+    translateY(calc((1 - var(--card-progress)) * 60px))
+    scale(calc(0.92 + var(--card-progress) * 0.08));
   height: 100%;
-}
-
-/* 호버 시 살짝 떠오르는 인터랙션 (Apple 라이크) */
-.process__stage:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 30px 60px -25px rgba(10, 22, 40, 0.18);
-  border-color: rgba(30, 64, 175, 0.18);
 }
 
 @media (min-width: 768px) {
@@ -871,13 +886,31 @@ blockquote {
   }
 }
 
-/* 가로 레이아웃에서는 모두 동시에 보임 — data-active 별도 강조 X (호버로만 처리) */
-.process__stage[data-active="true"],
-.process__stage[data-active="past"],
-.process__stage[data-active="false"] {
+/* 호버 시 살짝 더 떠오름 (Apple 라이크) — 진행도 무시하고 정자세 강조 */
+.process__stage:hover {
   opacity: 1;
-  transform: none;
-  box-shadow: 0 20px 40px -25px rgba(10, 22, 40, 0.12);
+  transform:
+    rotateX(0deg)
+    translateY(-4px)
+    scale(1);
+  box-shadow: 0 30px 60px -25px rgba(10, 22, 40, 0.20);
+  border-color: rgba(30, 64, 175, 0.22);
+}
+
+/* 활성 단계 강조 — 약간 더 들어 올리고 보더 블루 */
+.process__stage[data-active="true"] {
+  --card-progress: 1;          /* JS 가 셋팅 못해도 fallback */
+  border-color: rgba(30, 64, 175, 0.30);
+  box-shadow: 0 30px 70px -25px rgba(30, 64, 175, 0.30);
+}
+
+/* 모션 감소 모드 — 3D transform 비활성, 평평하게 */
+@media (prefers-reduced-motion: reduce) {
+  .process__stage {
+    --card-progress: 1;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* 카드 내부 헤더 (라벨 + 번호) */
@@ -939,7 +972,7 @@ blockquote {
   transition: width 300ms ease, background 300ms ease;
 }
 
-/* 활성 도트 — 캡슐 형태로 확장 */
+/* 활성 도트 — 측슐 형태로 확장 */
 .process__progress-dot[aria-current="true"] {
   width: 24px;
   background: var(--primary);
@@ -976,10 +1009,10 @@ blockquote {
   line-height: 1.4;
 }
 
-/* 큰 값 — 좁은 컬럼에서도 깨지지 않도록 clamp + word-break 보정 */
+/* 큰 값 — 좁은 컴럼에서도 깨지지 않도록 clamp + word-break 보정 */
 .process__metric-value {
   order: 2;
-  font-size: clamp(2rem, 4vw, 3rem); /* h1 보다 작게, 컬럼 너비에 비례 */
+  font-size: clamp(2rem, 4vw, 3rem); /* h1 보다 작게, 컴럼 너비에 비례 */
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--primary);
@@ -1473,71 +1506,66 @@ blockquote {
    [15] Floating AI 챗 버튼 (.fab / .chatbot-fab)
    ============================================================ */
 
-/* FAB 공통 — 우측 하단 고정 원형 */
+/* FAB — 우측 하단 고정 pill 형태, 아이콘+라벨 항상 함께 표시 */
 .fab,
 .chatbot-fab {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
+  right: 20px;
+  bottom: 20px;
   z-index: 90;
-  width: 56px;
-  height: 56px;
-  border-radius: 9999px;
+  height: 52px;
+  padding: 0 18px 0 14px;     /* 좌측에 아이콘이 들어가서 좌패딩 더 작게 */
+  border-radius: 9999px;       /* pill */
   border: 0;
   background: var(--primary);
   color: #FFFFFF;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   cursor: pointer;
-  box-shadow: 0 12px 28px -8px rgba(30, 64, 175, 0.45);
+  box-shadow: 0 14px 32px -10px rgba(30, 64, 175, 0.55);
   transition: background 200ms ease, transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;          /* 라벨이 한 줄에 들어가게 */
 }
 
 @media (min-width: 768px) {
   .fab,
   .chatbot-fab {
-    width: 64px;
-    height: 64px;
+    right: 24px;
+    bottom: 24px;
+    height: 56px;
+    padding: 0 22px 0 18px;
+    font-size: 1rem;
   }
 }
 
-/* FAB 호버 — 살짝 떠오름 + 색 변화 */
+/* 호버 — 살짝 떠오름 + 색 변화 */
 .fab:hover,
 .chatbot-fab:hover {
   background: var(--primary-soft);
   transform: translateY(-2px);
-  box-shadow: 0 16px 32px -8px rgba(30, 64, 175, 0.55);
+  box-shadow: 0 18px 36px -10px rgba(30, 64, 175, 0.65);
 }
 
-/* FAB 내부 SVG 아이콘 사이즈 */
+/* FAB 내부 SVG 아이콘 (라벨과 같이 보임) */
 .fab svg,
-.chatbot-fab svg {
-  width: 24px;
-  height: 24px;
+.chatbot-fab svg,
+.chatbot-fab__icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
-/* FAB 좌측 라벨 칩 — 호버 시 슬라이드 등장 */
-.chatbot-fab__chip {
-  position: absolute;
-  right: calc(100% + var(--space-3));
-  top: 50%;
-  transform: translateY(-50%) translateX(8px);
-  background: #FFFFFF;
-  color: var(--ink);
-  padding: var(--space-2) var(--space-4);
-  border-radius: 9999px;
-  font-size: var(--fs-small);
-  font-weight: 500;
-  white-space: nowrap;
-  box-shadow: 0 12px 28px -8px rgba(10, 22, 40, 0.25);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 200ms ease, transform 200ms ease;
-}
-.chatbot-fab:hover .chatbot-fab__chip {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
+/* 라벨 — 버튼 내부 인라인 텍스트 */
+.chatbot-fab__label {
+  display: inline-block;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 /* 모바일 — Hero 통과 전 FAB 숨김 (JS가 .is-visible 토글) */
@@ -1983,7 +2011,7 @@ blockquote {
    - 1280px+: 와이드 (컨테이너 max-width만)
    ============================================================ */
 
-/* 와이드 데스크톱 — 컨테이너만 살짝 더 넉넉 */
+/* 와이드 데스크톱 — 컨테이너만 살짝 더 넝넝 */
 @media (min-width: 1280px) {
   :root {
     --container-max: 1240px;
