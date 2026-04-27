@@ -1,22 +1,25 @@
 /* ============================================================================
- * scroll-fx.js — 스크롤 기반 시각 효과 모듈
+ * scroll-fx.js — 스크롤 기반 시각 효과 모듈 (v2)
  * ----------------------------------------------------------------------------
  * 이 파일이 하는 일 (4가지)
  *   1) Reveal-on-scroll
  *      - `.reveal` 요소가 뷰포트에 들어오면 `.is-revealed` 클래스를 부여해서
  *        CSS가 정의한 페이드/슬라이드 애니메이션을 발동시킵니다.
  *      - 한 번 보여진 요소는 다시 감추지 않습니다(재등장 시 깜빡거림 방지).
+ *      - 같은 그리드 안 카드들은 `--i` 인덱스를 부여해 stagger(시차) 가능.
  *
  *   2) 헤더 transparent → solid 토글
  *      - 사용자가 80px 이상 스크롤하면 `.header` 에 `.header--solid` 클래스를
- *        붙여 흰 배경 + 다크 텍스트 상태로 전환합니다.
+ *        붙여 흰 배경 + 다크 텍스트 상태로 전환합니다. (spec_v2 §9.3)
  *
- *   3) Process 섹션의 sticky pin 진행도 계산
- *      - `.process` 섹션은 height: 400vh, 내부 sticky 박스는 100vh 입니다.
- *      - 섹션이 화면을 지나가는 동안의 진행도(0~1)를 계산해서
- *        섹션에 CSS 변수 `--progress` 로 넣어 줍니다(추후 CSS가 활용).
- *      - 진행도에 따라 0~3 중 하나의 활성 stage 인덱스를 계산해
- *        `.process__stage` 각각에 `data-active="true|false"` 를 셋팅합니다.
+ *   3) Process 섹션의 sticky pin 3D 진행도 (★v2 핵심)
+ *      - `.process` 섹션은 height: 200vh, 내부 sticky 박스는 100vh 입니다.
+ *      - 섹션 진행도(0~1)를 계산하고, 4개 stage 카드 각각에 대해
+ *        카스케이드 윈도우 진행도를 계산해 `--card-progress` 변수로 노출합니다.
+ *        · card i 의 활성 윈도우 = [i*0.18, i*0.18 + 0.30]
+ *        · cardProgress = clamp((progress - start)/(end - start), 0, 1)
+ *      - 가장 활성도가 높은 stage(cardProgress >= 0.5)에
+ *        `data-active="true"` 를 셋팅합니다.
  *
  *   4) Footer 연도 자동 갱신
  *      - `#footer-year` 텍스트를 올해 연도로 채웁니다.
@@ -25,9 +28,9 @@
  *   - 'use strict' + IIFE 패턴으로 전역 오염 방지
  *   - 외부 라이브러리 0개 (바닐라 JS)
  *   - DOMContentLoaded 후 초기화
- *   - prefers-reduced-motion 매치 시: reveal 즉시 적용 + sticky 진행도 비활성
+ *   - prefers-reduced-motion 매치 시: reveal 즉시 적용 + sticky 인터랙션 미등록
  *
- * spec.md 7장(스크롤 인터랙션 명세)을 그대로 따릅니다.
+ * spec_v2.md §9 (스크롤 인터랙션 명세) 를 그대로 따릅니다.
  * ========================================================================== */
 
 (function () {
@@ -37,14 +40,24 @@
    * 0) 공통 유틸 / 상수
    * ------------------------------------------------------------------------ */
 
-  // 헤더 transparent → solid 전환 임계값 (spec 7.3 확정값)
+  // 헤더 transparent → solid 전환 임계값 (spec_v2 §9.3 확정값)
   const HEADER_SCROLL_THRESHOLD = 80;
 
-  // IntersectionObserver 옵션 (spec 7.1 확정값)
+  // IntersectionObserver 옵션 (spec_v2 §9.1 확정값)
   // threshold 0.15 = 요소의 15%가 보이면 트리거
   // rootMargin 하단 -10% = 뷰포트 바닥에서 10% 더 안쪽에서 트리거 (살짝 일찍)
   const REVEAL_THRESHOLD = 0.15;
   const REVEAL_ROOT_MARGIN = '0px 0px -10% 0px';
+
+  // Process sticky 카스케이드 윈도우 (spec_v2 §9.2 + 사용자 명시 요구)
+  // 4개 카드를 0.18 간격으로 시작해서 각 카드 0.30 길이의 윈도우를 갖는다.
+  // 즉 카드 0: 0.00~0.30, 카드 1: 0.18~0.48, 카드 2: 0.36~0.66, 카드 3: 0.54~0.84
+  const STAGE_WINDOW_STEP = 0.18;
+  const STAGE_WINDOW_SIZE = 0.30;
+
+  // 어느 카드가 "현재 활성"인지 판단하는 임계값
+  // (cardProgress 가 0.5 이상이면 active 후보)
+  const STAGE_ACTIVE_THRESHOLD = 0.5;
 
   // 사용자가 모션 감소를 선호하는지 확인 (접근성)
   // - 매번 호출하지 않도록 한 번만 평가하고 보관합니다.
@@ -83,7 +96,6 @@
       if (!parent) return;
       const siblings = parent.querySelectorAll(':scope > .reveal');
       if (siblings.length > 1) {
-        // 형제 중 자기 자신의 인덱스를 찾아 셋팅
         const index = Array.prototype.indexOf.call(siblings, el);
         el.style.setProperty('--i', String(index));
       }
@@ -129,7 +141,7 @@
    * 한 프레임당 1번만 처리하도록 throttle 합니다.
    * ------------------------------------------------------------------------ */
   function initHeaderToggle() {
-    // spec 5.1 에 따르면 헤더 ID는 `#site-header`, 블록 클래스는 `.header`.
+    // spec_v2 §섹션1 에 따르면 헤더 ID는 `#site-header`, 블록 클래스는 `.header`.
     // 둘 중 먼저 잡히는 것을 사용 (HTML 빌더 작업 결과에 유연하게 대응).
     const header =
       document.getElementById('site-header') ||
@@ -141,7 +153,9 @@
     function update() {
       const scrolled = window.scrollY > HEADER_SCROLL_THRESHOLD;
       // classList.toggle 두 번째 인자(force) 로 상태를 명시적으로 셋팅합니다.
+      // transparent / solid 두 변형을 함께 토글해 CSS 가 둘 중 하나만 적용하게 합니다.
       header.classList.toggle('header--solid', scrolled);
+      header.classList.toggle('header--transparent', !scrolled);
       ticking = false;
     }
 
@@ -160,20 +174,36 @@
   }
 
   /* --------------------------------------------------------------------------
-   * 3) Process 섹션 sticky pin 진행도 계산
+   * 3) Process 섹션 sticky pin 3D 진행도 (★v2 핵심)
    * ------------------------------------------------------------------------
-   * spec 7.2 의 공식을 그대로 사용합니다.
+   * 구조 (spec_v2 §섹션6 + §9.2):
+   *   <section id="process" style="height: 200vh">
+   *     <div class="process__sticky" style="position: sticky; top: 0; height: 100vh">
+   *       <div class="process__stage" data-stage="1"> … </div>
+   *       <div class="process__stage" data-stage="2"> … </div>
+   *       <div class="process__stage" data-stage="3"> … </div>
+   *       <div class="process__stage" data-stage="4"> … </div>
+   *     </div>
+   *   </section>
+   *
+   * 진행도 계산 (spec §9.2 공식 그대로):
    *   const rect = section.getBoundingClientRect();
    *   const total = section.offsetHeight - window.innerHeight;
    *   const scrolled = clamp(-rect.top, 0, total);
-   *   const progress = scrolled / total;  // 0 ~ 1
+   *   const progress = scrolled / total;  // 0 ~ 1 (섹션 진행도)
    *
-   * 진행도에 따라 4단계 stage 중 활성 인덱스를 계산하고, 각 stage 의
-   * `data-active` 속성을 갱신합니다. CSS 는 [data-active="true"] 셀렉터로
-   * 카드 transform 을 분기하면 됩니다.
+   * 카스케이드 윈도우 (사용자 명시 요구):
+   *   card i 의 활성 윈도우 = [i*0.18, i*0.18 + 0.30]
+   *   cardProgress = clamp((progress - start) / (end - start), 0, 1)
+   *   → 각 stage 에 `--card-progress` 로 노출 (CSS 가 transform/opacity 보간)
    *
-   * prefers-reduced-motion 매치 시에는 sticky 진행도 자체를 등록하지 않고,
-   * 모든 stage 를 활성으로 표시해 정적인 stack 으로 보이게 합니다.
+   * 활성 카드 표시:
+   *   가장 활성도가 높은 stage(cardProgress >= 0.5) 에 data-active="true".
+   *   나머지는 속성 제거. CSS 는 [data-active="true"] 셀렉터로 강조.
+   *
+   * 모션 감소 모드:
+   *   sticky 인터랙션 자체를 등록하지 않고 함수를 종료합니다.
+   *   (CSS 의 @media (prefers-reduced-motion: reduce) 에서 정적 stack 처리)
    * ------------------------------------------------------------------------ */
   function initProcessSticky() {
     const section = document.getElementById('process');
@@ -182,15 +212,11 @@
     const stages = section.querySelectorAll('.process__stage');
     if (stages.length === 0) return;
 
-    // 모션 감소 모드: 진행도 갱신을 등록하지 않고, 모든 stage 를 활성으로 둡니다.
-    if (prefersReducedMotion) {
-      stages.forEach((stage) => {
-        stage.setAttribute('data-active', 'true');
-        stage.style.setProperty('--card-progress', '1');
-      });
-      section.style.setProperty('--progress', '1');
-      return;
-    }
+    // 모션 감소 모드: 진행도 갱신을 등록하지 않습니다. (CSS 측에서 정적 처리)
+    if (prefersReducedMotion) return;
+
+    // 진행 도트(있을 때만): 활성 카드 인덱스에 맞춰 같이 갱신합니다.
+    const dots = section.querySelectorAll('.process__progress-dot');
 
     let ticking = false;
 
@@ -198,56 +224,69 @@
       const rect = section.getBoundingClientRect();
       const total = section.offsetHeight - window.innerHeight;
 
-      // total 이 0 이하이면(섹션 높이가 viewport 보다 작거나 같으면) 계산 불가 → 0 으로 처리
+      // total 이 0 이하이면(섹션 높이가 viewport 보다 작거나 같으면) 진행도 0 으로 둠
       const progress =
         total > 0 ? clamp(-rect.top, 0, total) / total : 0;
 
-      // CSS 변수로 전체 섹션 진행도 노출 (디버그/보조용)
+      // 섹션 전체 진행도도 CSS 변수로 노출 (필요 시 다른 효과에 활용 가능)
       section.style.setProperty('--progress', progress.toFixed(4));
 
-      // 4개 카드 각각의 개별 진행도(0~1) 계산
-      // - 카드 i 는 progress (i*0.18) 부터 (i*0.18 + 0.30) 사이에 0→1 로 활성화
-      // - 윈도우가 겹쳐서 부드러운 cascade 효과
-      // - 마지막 카드(i=3)는 0.54~0.84 구간이므로 80% 스크롤 후 완전 활성
-      const STAGE_COUNT = stages.length;
-      const STAGE_WINDOW = 0.30;     // 카드별 활성화 폭
-      const STAGE_STEP = 0.18;       // 카드 간 시작 간격
+      // 가장 활성도 높은 카드(>= 0.5) 인덱스를 추적
+      let activeIndex = -1;
+      let bestProgress = STAGE_ACTIVE_THRESHOLD;
 
-      let activeIndex = 0;
-      stages.forEach((stage, idx) => {
-        const start = idx * STAGE_STEP;
-        const end = start + STAGE_WINDOW;
-        const denom = end - start;
-        const cardProgress = denom > 0
-          ? clamp((progress - start) / denom, 0, 1)
-          : 0;
+      stages.forEach((stage, i) => {
+        // card i 의 활성 윈도우 계산
+        const start = i * STAGE_WINDOW_STEP;
+        const end = start + STAGE_WINDOW_SIZE;
+        const cardProgress = clamp(
+          (progress - start) / (end - start),
+          0,
+          1
+        );
+
+        // CSS 변수로 각 카드 진행도 노출 (CSS 가 transform/opacity 에 사용)
         stage.style.setProperty('--card-progress', cardProgress.toFixed(3));
 
-        // 가장 활성화된 카드를 마지막에 data-active="true" 로 표시
-        if (cardProgress >= 0.5) {
-          activeIndex = idx;
+        // active 후보 갱신: 가장 큰 cardProgress 를 가진 카드를 선택
+        if (cardProgress >= bestProgress) {
+          bestProgress = cardProgress;
+          activeIndex = i;
         }
       });
 
-      stages.forEach((stage, idx) => {
-        stage.setAttribute(
-          'data-active',
-          idx === activeIndex && progress > 0.05 ? 'true' : 'false'
-        );
+      // data-active 토글: 한 번에 한 카드만 active
+      stages.forEach((stage, i) => {
+        if (i === activeIndex) {
+          stage.setAttribute('data-active', 'true');
+        } else {
+          stage.removeAttribute('data-active');
+        }
+      });
+
+      // 진행 도트도 같은 인덱스로 동기화 (있을 때만)
+      dots.forEach((dot, i) => {
+        if (i === activeIndex) {
+          dot.setAttribute('aria-current', 'true');
+          dot.classList.add('is-active');
+        } else {
+          dot.removeAttribute('aria-current');
+          dot.classList.remove('is-active');
+        }
       });
 
       ticking = false;
     }
 
-    function onScroll() {
+    function onScrollOrResize() {
       if (ticking) return;
       ticking = true;
       window.requestAnimationFrame(update);
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
     // 리사이즈 시에도 offsetHeight / innerHeight 가 바뀌므로 다시 계산
-    window.addEventListener('resize', onScroll, { passive: true });
+    window.addEventListener('resize', onScrollOrResize, { passive: true });
 
     // 초기 1회 실행 (페이지 로드 직후 위치에 맞는 상태로 그리기)
     update();
