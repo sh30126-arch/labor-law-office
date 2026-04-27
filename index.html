@@ -1,349 +1,698 @@
-<!--
-  ===================================================================
-  노동법률사무소 "이해" - 24시간 AI 노무 상담 웹사이트
-  -------------------------------------------------------------------
-  파일 역할: 페이지의 뼈대(구조)를 담당합니다.
-  - 디자인(보이는 모양)은 styles.css 가 담당합니다.
-  - 동작(API 호출/채팅)은 js/gemini-api.js, js/app.js 가 담당합니다.
-
-  초보자 메모: HTML은 "무엇이 있는지"를 적는 종이라고 생각하면 됩니다.
-  스타일과 동작은 별도 파일에서 입혀줍니다.
-  ===================================================================
--->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <!-- 문자 인코딩: 한글이 깨지지 않도록 UTF-8 로 지정합니다. -->
-  <meta charset="UTF-8" />
+  <!--
+    노동법률사무소 "이해" 홈페이지 - index.html
+    이 파일은 spec.md의 9개 섹션을 시맨틱 마크업으로 구현한 것입니다.
+    스타일은 styles.css, 인터랙션은 js/ 폴더의 스크립트가 담당합니다.
+  -->
 
-  <!-- 모바일 화면 대응: 휴대폰에서도 글자가 적절한 크기로 보이게 합니다. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- 문자 인코딩과 뷰포트 설정 (모바일 반응형의 기본) -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-  <!-- 검색엔진/SNS 공유 시 보이는 정보 -->
-  <meta name="description" content="노동법률사무소 이해의 24시간 AI 노무 상담. 부당해고, 임금체불, 퇴직금, 산업재해, 직장 내 괴롭힘 등 노무 문제를 즉시 상담하세요." />
+  <!-- 검색엔진과 SNS 미리보기에 노출되는 메타 정보 -->
+  <meta name="description" content="노동법률사무소 이해 — 일하는 사람의 이야기를 끝까지 듣습니다. 부당해고·임금체불·산업재해·직장 내 괴롭힘 등 24시간 노무 상담." />
+  <meta name="theme-color" content="#0A1628" />
+  <meta property="og:title" content="노동법률사무소 이해 | 24시간 노무 상담" />
+  <meta property="og:description" content="법은 차갑지만, 사람의 이야기는 따뜻해야 합니다. 이해 노무사가 직접 검토하는 노동법률 상담." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
 
-  <title>노동법률사무소 이해 | 24시간 AI 노무 상담</title>
+  <title>노동법률사무소 이해 | 24시간 노무 상담</title>
 
-  <!-- 외부 스타일시트 연결: 디자인 규칙을 styles.css 에서 읽어옵니다. -->
+  <!-- 폰트: Pretendard CDN (한글·영문 통합 가독성) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+
+  <!-- 사이트 전역 스타일 (별도 에이전트가 관리) -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!--
-    ===============================================================
-    1) 헤더(Header)
-    ---------------------------------------------------------------
-    페이지 최상단의 띠 영역입니다.
-    좌측에는 사무소 이름(로고 역할), 우측에는 페이지 내 이동 메뉴를 둡니다.
-    메뉴는 모두 같은 페이지의 섹션으로 점프하는 앵커(#) 링크입니다.
-    ===============================================================
-  -->
-  <header class="site-header" role="banner">
-    <div class="container site-header__inner">
-      <!-- 사무소 명칭(로고). 클릭하면 페이지 맨 위로 이동합니다. -->
-      <a href="#top" class="site-logo" aria-label="노동법률사무소 이해 홈으로 이동">
-        <span class="site-logo__mark" aria-hidden="true">⚖️</span>
-        <span class="site-logo__text">노동법률사무소 <strong>이해</strong></span>
-      </a>
+  <!-- ============================================================
+       섹션 1. 고정 상단 헤더
+       - 페이지 최상단에 항상 떠 있는 내비게이션 바입니다.
+       - Hero(다크) 위에서는 투명·흰 글자, 스크롤 후에는 흰 배경·다크 글자로 변합니다.
+       - 좌측: 워드마크 / 우측: 메뉴 + 상담 문의 CTA + 모바일 햄버거
+       ============================================================ -->
+  <header id="site-header" class="header header--transparent" role="banner">
+    <div class="header__inner container">
+      <!-- 워드마크: 페이지 최상단으로 이동하는 홈 링크 -->
+      <a class="header__mark" href="#hero" aria-label="노동법률사무소 이해 홈으로">leehae</a>
 
-      <!-- 메뉴(내비게이션). aria-label로 어떤 영역인지 스크린리더에 알립니다. -->
-      <nav class="site-nav" aria-label="주요 메뉴">
-        <ul class="site-nav__list">
-          <li><a href="#top">홈</a></li>
-          <li><a href="#services">상담분야</a></li>
-          <li><a href="#chat">24시간 상담</a></li>
-          <li><a href="#contact">오시는 길</a></li>
+      <!-- 데스크톱 내비게이션 (≥768px 표시) -->
+      <nav class="header__nav" aria-label="주요 메뉴">
+        <ul class="header__nav-list">
+          <li><a class="header__nav-link" href="#about">철학</a></li>
+          <li><a class="header__nav-link" href="#practice">업무분야</a></li>
+          <li><a class="header__nav-link" href="#process">진행절차</a></li>
+          <li><a class="header__nav-link" href="#profile">대표 노무사</a></li>
+          <li><a class="header__nav-link" href="#insights">칼럼</a></li>
+          <li><a class="header__nav-link" href="#contact">오시는 길</a></li>
+        </ul>
+      </nav>
+
+      <!-- 우측 액션: CTA + 햄버거 -->
+      <div class="header__actions">
+        <a class="btn btn--primary btn--sm header__cta" href="#contact">상담 문의</a>
+
+        <!-- 모바일 햄버거 (≤767px만 표시) -->
+        <button class="header__burger" type="button" aria-label="메뉴 열기" aria-controls="mobile-menu" aria-expanded="false">
+          <span class="header__burger-line"></span>
+          <span class="header__burger-line"></span>
+          <span class="header__burger-line"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 모바일 풀스크린 오버레이 메뉴 (햄버거 클릭 시 표시) -->
+    <div id="mobile-menu" class="header__menu header__menu--mobile" hidden>
+      <nav aria-label="모바일 메뉴">
+        <ul class="header__menu-list">
+          <li><a class="header__menu-link" href="#about">철학</a></li>
+          <li><a class="header__menu-link" href="#practice">업무분야</a></li>
+          <li><a class="header__menu-link" href="#process">진행절차</a></li>
+          <li><a class="header__menu-link" href="#profile">대표 노무사</a></li>
+          <li><a class="header__menu-link" href="#insights">칼럼</a></li>
+          <li><a class="header__menu-link" href="#contact">오시는 길</a></li>
         </ul>
       </nav>
     </div>
   </header>
+  <!-- ===== 섹션 1. 헤더 끝 ===== -->
 
-  <!--
-    ===============================================================
-    main: 페이지의 핵심 본문 영역입니다.
-    검색엔진과 보조기기(스크린리더)에게 "여기가 본문"이라고 알려줍니다.
-    ===============================================================
-  -->
-  <main id="top">
 
-    <!--
-      -------------------------------------------------------------
-      2) 히어로(Hero) 섹션
-      -------------------------------------------------------------
-      방문자가 가장 먼저 보는 영역. 큰 헤드라인 + 부제 + CTA 버튼.
-      CTA(Call To Action) 버튼은 #chat 으로 이동시켜 바로 상담을 시작하게 합니다.
-      -------------------------------------------------------------
-    -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="container hero__inner">
-        <p class="hero__eyebrow">24시간 AI 노무 상담</p>
+  <main id="main">
 
+    <!-- ============================================================
+         섹션 2. Hero
+         - 첫 화면을 채우는 메인 비주얼입니다 (100vh 다크 배경).
+         - 헤드라인 "한 사람을 이해합니다." + 리드 문장 + CTA 2개로 구성.
+         ============================================================ -->
+    <section id="hero" class="hero hero--dark" aria-labelledby="hero-title">
+      <div class="hero__inner container">
+        <!-- 작은 라벨 (브랜드 카테고리 표기) -->
+        <span class="hero__eyebrow">LABOR LAW OFFICE · 노동법률사무소</span>
+
+        <!-- 메인 헤드라인 (두 줄 강제 줄바꿈) -->
         <h1 id="hero-title" class="hero__title">
-          24시간 AI 노무 상담,<br />
-          지금 바로 시작하세요
+          한 사람을<br />
+          이해합니다.
         </h1>
 
-        <p class="hero__subtitle">
-          부당해고, 임금체불, 퇴직금, 산업재해, 직장 내 괴롭힘.<br />
-          새벽이든 주말이든, 언제든지 익명으로 물어보세요.
+        <!-- 리드 문장 -->
+        <p class="hero__lead">
+          노동법률사무소 이해는, 일하는 사람의 이야기를 끝까지 듣는 것에서 시작합니다.
         </p>
 
-        <!-- CTA 버튼: 같은 페이지의 #chat 섹션으로 이동시킵니다. -->
-        <a href="#chat" class="btn btn--primary btn--lg" aria-label="지금 24시간 상담 시작하기">
-          지금 상담하기
-        </a>
+        <!-- CTA 버튼 영역 (1차: 상담 신청 / 2차: 업무 분야 보기) -->
+        <div class="hero__cta">
+          <a class="btn btn--primary btn--lg" href="#contact">무료 상담 신청</a>
+          <a class="btn btn--ghost btn--lg" href="#practice">업무 분야 보기</a>
+        </div>
 
-        <!-- 면책 안내(작게): 법적 자문이 아니라는 점을 즉시 알립니다. -->
-        <p class="hero__notice">
-          ※ AI 상담은 참고용이며, 정확한 법률 자문은 전문 노무사와 상담하세요.
-        </p>
+        <!-- 하단 스크롤 인디케이터 (다음 섹션이 있다는 시각적 힌트) -->
+        <div class="hero__scroll" aria-hidden="true">
+          <span class="hero__scroll-arrow">↓</span>
+          <span class="hero__scroll-text">Scroll</span>
+        </div>
       </div>
     </section>
+    <!-- ===== 섹션 2. Hero 끝 ===== -->
 
-    <!--
-      -------------------------------------------------------------
-      3) 상담 분야 소개
-      -------------------------------------------------------------
-      방문자가 "내 문제도 다루나?"를 30초 안에 확인하도록 카드 5개로 구성.
-      각 카드는 아이콘(이모지) + 제목 + 짧은 설명으로 이루어집니다.
-      -------------------------------------------------------------
-    -->
-    <section id="services" class="services" aria-labelledby="services-title">
-      <div class="container">
-        <h2 id="services-title" class="section-title">상담 분야</h2>
-        <p class="section-subtitle">
-          가장 많이 문의 주시는 5가지 분야입니다. 그 외 노무 문제도 자유롭게 질문해 주세요.
-        </p>
 
-        <!-- ul/li 로 의미적인 "목록"을 표현 -->
-        <ul class="services__grid">
-          <li class="service-card">
-            <div class="service-card__icon" aria-hidden="true">🚫</div>
-            <h3 class="service-card__title">부당해고</h3>
-            <p class="service-card__desc">
-              해고 통보를 받았다면, 절차와 사유가 정당했는지 함께 점검해 드립니다.
-            </p>
-          </li>
+    <!-- ============================================================
+         섹션 3. About / 철학
+         - 사무소의 핵심 철학을 큰 인용 헤드라인 + 두 단락의 본문으로 전달합니다.
+         - 라이트 톤 배경 (--paper).
+         ============================================================ -->
+    <section id="about" class="about" aria-labelledby="about-title">
+      <div class="about__inner container">
+        <!-- 카테고리 라벨 -->
+        <span class="about__eyebrow reveal">철학</span>
 
-          <li class="service-card">
-            <div class="service-card__icon" aria-hidden="true">💰</div>
-            <h3 class="service-card__title">임금체불</h3>
-            <p class="service-card__desc">
-              월급, 야근수당, 주휴수당이 제대로 들어왔는지 확인하고 대응 방법을 안내합니다.
-            </p>
-          </li>
+        <!-- 큰 인용 헤드라인 (좌측 4px 브랜드 블루 라인 + 따옴표) -->
+        <blockquote id="about-title" class="about__quote reveal">
+          <p>
+            “법은 차갑지만,<br />
+            사람의 이야기는 따뜻해야 합니다.”
+          </p>
+        </blockquote>
 
-          <li class="service-card">
-            <div class="service-card__icon" aria-hidden="true">📅</div>
-            <h3 class="service-card__title">퇴직금 · 연차</h3>
-            <p class="service-card__desc">
-              퇴직금 계산, 연차휴가 사용·수당 지급 기준을 사례별로 알려드립니다.
-            </p>
-          </li>
-
-          <li class="service-card">
-            <div class="service-card__icon" aria-hidden="true">🏥</div>
-            <h3 class="service-card__title">산업재해</h3>
-            <p class="service-card__desc">
-              업무 중 다치거나 직업병이 의심된다면, 산재 신청 절차를 안내해 드립니다.
-            </p>
-          </li>
-
-          <li class="service-card">
-            <div class="service-card__icon" aria-hidden="true">🛡️</div>
-            <h3 class="service-card__title">직장 내 괴롭힘</h3>
-            <p class="service-card__desc">
-              괴롭힘에 해당하는 행위인지 판단하고 신고·증거 확보 방법을 알려드립니다.
-            </p>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <!--
-      -------------------------------------------------------------
-      4) 24시간 AI 상담 채팅 섹션
-      -------------------------------------------------------------
-      이 섹션은 두 단계로 구성됩니다.
-      (A) 처음 방문 시: API 키 입력 영역만 보입니다 (api-key-section).
-      (B) 키 저장 후 : 채팅 컨테이너가 표시됩니다 (chat-container).
-
-      DOM ID는 JS 에이전트가 의존하므로 절대로 바꾸지 마세요.
-      -------------------------------------------------------------
-    -->
-    <section id="chat" class="chat-section" aria-labelledby="chat-title">
-      <div class="container">
-        <h2 id="chat-title" class="section-title">24시간 AI 상담</h2>
-        <p class="section-subtitle">
-          Google Gemini 기반 AI 노무 상담사가 답변해 드립니다. 익명으로 편하게 질문하세요.
-        </p>
-
-        <!--
-          (A) API 키 입력 영역
-          ---------------------------
-          최초 1회 사용자가 자신의 Gemini API 키를 입력합니다.
-          입력값은 브라우저 안(localStorage 등)에만 저장하고 외부로 전송하지 않습니다.
-          저장 후에는 JS가 이 영역을 숨기고 chat-container를 표시합니다.
-        -->
-        <div id="api-key-section" class="api-key-section" aria-labelledby="api-key-title">
-          <h3 id="api-key-title" class="api-key-section__title">시작 전 한 가지만 설정해 주세요</h3>
-
-          <!-- label과 input의 for/id를 연결해 접근성 확보 -->
-          <label for="api-key-input" class="api-key-section__label">
-            Google Gemini API 키
-          </label>
-
-          <!--
-            보안을 위해 type="password" 사용.
-            화면에서는 점(•)으로 표시되어 어깨너머로 보이지 않도록 합니다.
-          -->
-          <input
-            id="api-key-input"
-            type="password"
-            class="api-key-section__input"
-            placeholder="AIza... 형태의 키를 붙여넣어 주세요"
-            autocomplete="off"
-            spellcheck="false"
-            aria-describedby="api-key-help"
-          />
-
-          <button
-            id="api-key-save-btn"
-            type="button"
-            class="btn btn--primary api-key-section__save"
-          >
-            저장하고 상담 시작
-          </button>
-
-          <!-- 보안 안내 문구. aria-describedby로 input과 연결되어 있습니다. -->
-          <p id="api-key-help" class="api-key-section__hint">
-            🔒 API 키는 사용자의 브라우저에만 저장되며 외부 서버로 전송되지 않습니다.
-            (키 발급은 <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer">Google AI Studio</a>에서 무료로 가능합니다.)
+        <!-- 본문 2단락 -->
+        <div class="about__body reveal">
+          <p>
+            노동법률사무소 이해는 단순히 사건을 처리하는 곳이 아닙니다. 부당한 일을 겪은 한 사람의 시간을, 마음을, 그리고 다시 일터로 돌아갈 용기를 함께 책임지는 곳입니다.
+          </p>
+          <p>
+            이해 노무사는 ‘이해받지 못한 채 끝나는 사건은 없어야 한다’는 원칙으로, 모든 사건을 처음부터 끝까지 직접 검토합니다. 빠른 답변보다 정확한 답변을, 형식적인 위로보다 실질적인 결과를 약속드립니다.
           </p>
         </div>
+      </div>
+    </section>
+    <!-- ===== 섹션 3. About 끝 ===== -->
 
-        <!--
-          (B) 채팅 컨테이너
-          ---------------------------
-          처음에는 hidden 속성으로 숨겨져 있습니다.
-          API 키 저장이 끝나면 JS가 hidden 속성을 제거해 표시합니다.
-        -->
-        <div id="chat-container" class="chat-container" hidden>
 
-          <!-- 채팅 메시지가 쌓이는 영역. JS가 이 안에 새 메시지를 append 합니다. -->
-          <div
-            id="chat-messages"
-            class="chat-messages"
-            role="log"
-            aria-live="polite"
-            aria-label="상담 대화 내용"
-          >
-            <!--
-              초기 안내 메시지(정적). JS가 첫 인사말을 만들 필요 없도록 미리 1건 박아둡니다.
-              JS는 이 이후에 새 메시지를 append 하는 방식으로 동작합니다.
-            -->
-            <div class="message message-bot">
-              <div class="message__avatar" aria-hidden="true">⚖️</div>
-              <div class="message__bubble">
-                안녕하세요, 노동법률사무소 <strong>이해</strong>의 24시간 AI 상담입니다.<br />
-                어떤 노무 문제로 고민이신가요? 부당해고·임금체불·퇴직금·산재·직장 내 괴롭힘 등
-                무엇이든 편하게 말씀해 주세요.
-              </div>
+    <!-- ============================================================
+         섹션 4. Practice Areas (업무 분야)
+         - 사무소가 다루는 6가지 분야를 카드 그리드로 보여줍니다.
+         - 데스크톱 3열 × 2행, 다크 톤 배경 (--ink).
+         - 각 카드에 골드 번호 + 한글/영문 타이틀 + 본문 + "자세히 보기" 화살표.
+         ============================================================ -->
+    <section id="practice" class="practice practice--dark" aria-labelledby="practice-title">
+      <div class="practice__inner container">
+        <!-- 헤드 영역 -->
+        <header class="practice__head">
+          <span class="practice__eyebrow reveal">BUSINESS AREAS</span>
+          <h2 id="practice-title" class="practice__title reveal">이해가 다루는 6가지 분야</h2>
+          <p class="practice__lead reveal">
+            일터에서 발생하는 거의 모든 노동 문제를, 한곳에서 해결합니다.
+          </p>
+        </header>
+
+        <!-- 카드 그리드 (6개) -->
+        <div class="practice__grid">
+
+          <!-- 카드 01: 부당해고·징계 -->
+          <article class="practice__card reveal">
+            <div class="practice__card-head">
+              <span class="practice__card-number">01</span>
+              <h3 class="practice__card-title">부당해고·징계</h3>
             </div>
-          </div>
+            <p class="practice__card-subtitle">Wrongful Dismissal</p>
+            <p class="practice__card-body">
+              해고예고 미준수, 정당한 사유 없는 해고, 부당 징계까지. 노동위원회 구제신청을 통해 원직 복직과 임금 상당액을 받아드립니다.
+            </p>
+            <a class="practice__card-more" href="#contact" aria-label="부당해고·징계 자세히 보기">
+              <span>자세히 보기</span>
+              <span class="practice__card-arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
 
-          <!--
-            메시지 입력 폼.
-            form 요소를 사용해 엔터 키 제출 등 표준 동작을 자연스럽게 사용할 수 있게 합니다.
-          -->
-          <form id="chat-form" class="chat-form" autocomplete="off">
-            <!-- 시각적으로는 안 보이지만 스크린리더에는 읽히는 라벨 -->
-            <label for="chat-input" class="visually-hidden">상담 내용 입력</label>
+          <!-- 카드 02: 임금체불 -->
+          <article class="practice__card reveal">
+            <div class="practice__card-head">
+              <span class="practice__card-number">02</span>
+              <h3 class="practice__card-title">임금체불</h3>
+            </div>
+            <p class="practice__card-subtitle">Unpaid Wages</p>
+            <p class="practice__card-body">
+              지연된 월급, 못 받은 야근수당, 통상임금 누락. 고용노동부 진정과 민사소송, 두 가지 트랙을 병행해 가장 빠른 회수 방법을 설계합니다.
+            </p>
+            <a class="practice__card-more" href="#contact" aria-label="임금체불 자세히 보기">
+              <span>자세히 보기</span>
+              <span class="practice__card-arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
 
-            <textarea
-              id="chat-input"
-              class="chat-form__input"
-              rows="1"
-              placeholder="예) 5년 다닌 회사에서 갑자기 해고 통보를 받았어요. 어떻게 해야 하나요?"
-              aria-label="상담 내용 입력"
-            ></textarea>
+          <!-- 카드 03: 퇴직금·연차수당 -->
+          <article class="practice__card reveal">
+            <div class="practice__card-head">
+              <span class="practice__card-number">03</span>
+              <h3 class="practice__card-title">퇴직금·연차수당</h3>
+            </div>
+            <p class="practice__card-subtitle">Severance &amp; Annual Leave</p>
+            <p class="practice__card-body">
+              퇴직금 산정 누락, 미사용 연차 정산. 5인 미만 사업장이라도 받을 권리는 분명합니다. 1원 단위까지 다시 계산해드립니다.
+            </p>
+            <a class="practice__card-more" href="#contact" aria-label="퇴직금·연차수당 자세히 보기">
+              <span>자세히 보기</span>
+              <span class="practice__card-arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
 
-            <button
-              id="chat-send-btn"
-              type="submit"
-              class="btn btn--primary chat-form__send"
-              aria-label="메시지 전송"
-            >
-              전송
-            </button>
-          </form>
+          <!-- 카드 04: 산업재해 -->
+          <article class="practice__card reveal">
+            <div class="practice__card-head">
+              <span class="practice__card-number">04</span>
+              <h3 class="practice__card-title">산업재해</h3>
+            </div>
+            <p class="practice__card-subtitle">Industrial Accidents</p>
+            <p class="practice__card-body">
+              업무상 재해의 인정부터 요양·휴업·장해·유족급여까지. 근로복지공단 결정의 단계별 대응을 책임집니다.
+            </p>
+            <a class="practice__card-more" href="#contact" aria-label="산업재해 자세히 보기">
+              <span>자세히 보기</span>
+              <span class="practice__card-arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+
+          <!-- 카드 05: 직장 내 괴롭힘 -->
+          <article class="practice__card reveal">
+            <div class="practice__card-head">
+              <span class="practice__card-number">05</span>
+              <h3 class="practice__card-title">직장 내 괴롭힘</h3>
+            </div>
+            <p class="practice__card-subtitle">Workplace Harassment</p>
+            <p class="practice__card-body">
+              근로기준법 제76조의2·3에 따른 신고와 조사 절차 동행. 2차 가해 없이, 안전하게 분리·조치까지 이끕니다.
+            </p>
+            <a class="practice__card-more" href="#contact" aria-label="직장 내 괴롭힘 자세히 보기">
+              <span>자세히 보기</span>
+              <span class="practice__card-arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+
+          <!-- 카드 06: 노사관계 자문 -->
+          <article class="practice__card reveal">
+            <div class="practice__card-head">
+              <span class="practice__card-number">06</span>
+              <h3 class="practice__card-title">노사관계 자문</h3>
+            </div>
+            <p class="practice__card-subtitle">Labor Relations Advisory</p>
+            <p class="practice__card-body">
+              취업규칙 정비, 근로계약서 검토, 인사·징계 절차 자문. 사업주와 근로자 모두에게 ‘예방이 가장 싼 해결’임을 알려드립니다.
+            </p>
+            <a class="practice__card-more" href="#contact" aria-label="노사관계 자문 자세히 보기">
+              <span>자세히 보기</span>
+              <span class="practice__card-arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+
         </div>
       </div>
     </section>
+    <!-- ===== 섹션 4. Practice Areas 끝 ===== -->
+
+
+    <!-- ============================================================
+         섹션 5. Process (sticky pin 3D)
+         - 사건 진행 4단계(문의→상담→대응→해결)를 스크롤 진행도에 맞춰
+           카드가 차례로 등장/페이드아웃하는 sticky 인터랙션으로 보여줍니다.
+         - 섹션 자체 높이는 400vh이고, 내부 sticky 영역이 100vh로 고정됩니다.
+         - 핵심 효과 영역(평균 14일 / 91% / 0원)은 마지막 stage 이후 노출됩니다.
+         ============================================================ -->
+    <section id="process" class="process" aria-labelledby="process-title">
+      <div class="process__sticky">
+        <div class="process__inner container">
+
+          <!-- 헤드 영역 -->
+          <header class="process__head">
+            <span class="process__eyebrow">PROCESS · 진행 절차</span>
+            <h2 id="process-title" class="process__title">처음 연락부터 종결까지, 4단계.</h2>
+            <p class="process__lead">
+              사건의 형태는 달라도, 이해 노무사가 의뢰인을 안내하는 길은 한결같습니다.
+            </p>
+          </header>
+
+          <!-- 단계 카드 영역 (스크롤 진행도에 따라 active stage가 바뀝니다) -->
+          <div class="process__stages">
+
+            <!-- Stage 01 -->
+            <article class="process__stage" data-stage="1">
+              <span class="process__stage-label">01 · INQUIRY</span>
+              <h3 class="process__stage-title">문의</h3>
+              <p class="process__stage-body">
+                전화·온라인폼·AI 상담 어디서든. 첫 연락에 사건 개요를 듣고, 24시간 내 응답합니다.
+              </p>
+            </article>
+
+            <!-- Stage 02 -->
+            <article class="process__stage" data-stage="2">
+              <span class="process__stage-label">02 · CONSULT</span>
+              <h3 class="process__stage-title">상담</h3>
+              <p class="process__stage-body">
+                이해 노무사가 직접 1:1 상담. 증거자료 검토, 쟁점 정리, 가능한 절차와 예상 결과를 솔직하게 설명드립니다.
+              </p>
+            </article>
+
+            <!-- Stage 03 -->
+            <article class="process__stage" data-stage="3">
+              <span class="process__stage-label">03 · ACTION</span>
+              <h3 class="process__stage-title">대응</h3>
+              <p class="process__stage-body">
+                노동위·고용노동부·법원·근로복지공단까지. 사건 성격에 맞는 가장 빠른 트랙으로 본격 대응을 시작합니다.
+              </p>
+            </article>
+
+            <!-- Stage 04 (마지막 stage 내부에 핵심 효과 영역도 함께 배치) -->
+            <article class="process__stage" data-stage="4">
+              <span class="process__stage-label">04 · RESOLVE</span>
+              <h3 class="process__stage-title">해결</h3>
+              <p class="process__stage-body">
+                복직·합의·금전 회수까지. 종결 후에도 재발 방지 자문을 6개월간 무료로 제공합니다.
+              </p>
+
+              <!-- 핵심 효과 영역 (큰 숫자 3개) -->
+              <dl class="process__metrics" aria-label="이해 노무사 핵심 지표">
+                <div class="process__metric">
+                  <dt class="process__metric-label">1차 결과 도출 시점</dt>
+                  <dd class="process__metric-value">평균 14일</dd>
+                </div>
+                <div class="process__metric">
+                  <dt class="process__metric-label">상담 사건 중 의뢰인 만족 응답</dt>
+                  <dd class="process__metric-value">91%</dd>
+                </div>
+                <div class="process__metric">
+                  <dt class="process__metric-label">사전 상담료</dt>
+                  <dd class="process__metric-value">0원</dd>
+                </div>
+              </dl>
+            </article>
+
+          </div>
+
+          <!-- 진행 도트 4개 (현재 활성 stage를 시각화) -->
+          <ol class="process__progress" aria-label="진행 단계 표시">
+            <li class="process__progress-dot" data-stage="1" aria-current="true"></li>
+            <li class="process__progress-dot" data-stage="2"></li>
+            <li class="process__progress-dot" data-stage="3"></li>
+            <li class="process__progress-dot" data-stage="4"></li>
+          </ol>
+
+        </div>
+      </div>
+    </section>
+    <!-- ===== 섹션 5. Process 끝 ===== -->
+
+
+    <!-- ============================================================
+         섹션 6. 대표 노무사
+         - 좌측 사진(현재 placeholder) + 우측 약력 텍스트.
+         - 사진 우하단에 작은 명함 박스(absolute)가 떠 있습니다.
+         ============================================================ -->
+    <section id="profile" class="profile" aria-labelledby="profile-title">
+      <div class="profile__inner container">
+
+        <!-- 좌측: 사진 영역 (실사진 도입 전 placeholder) -->
+        <figure class="profile__photo reveal">
+          <div class="profile__photo-frame" role="img" aria-label="대표 노무사 사진 준비 중">
+            <span class="profile__photo-placeholder">사진 준비 중</span>
+          </div>
+          <!-- 우하단 명함 박스 -->
+          <figcaption class="profile__namecard">
+            <span class="profile__namecard-name">이해 노무사</span>
+            <span class="profile__namecard-role">LEEHAE · CERTIFIED LABOR ATTORNEY</span>
+          </figcaption>
+        </figure>
+
+        <!-- 우측: 약력 텍스트 -->
+        <div class="profile__bio">
+          <span class="profile__eyebrow reveal">대표 노무사</span>
+          <h2 id="profile-title" class="profile__title reveal">이해받지 못한 사건은 없어야 합니다.</h2>
+
+          <div class="profile__body reveal">
+            <p>
+              안녕하세요, 노동법률사무소 이해의 대표 노무사 [성함]입니다.
+            </p>
+            <p>
+              [학력 placeholder] · [자격 취득연도 placeholder] · [주요 경력 placeholder]를 거쳐, 일하는 사람의 곁에서 가장 가까운 법률 조력자로 일하고 있습니다.
+            </p>
+            <p>
+              사건의 크기보다 사람의 이야기를 먼저 듣겠습니다.
+            </p>
+          </div>
+
+          <!-- 약력 리스트 (불릿 없음, '—' prefix) -->
+          <ul class="profile__list reveal" aria-label="대표 노무사 약력">
+            <li class="profile__list-item">— [자격 placeholder] 공인노무사 (제○○○호)</li>
+            <li class="profile__list-item">— [학력 placeholder] 졸업</li>
+            <li class="profile__list-item">— [경력1 placeholder]</li>
+            <li class="profile__list-item">— [경력2 placeholder]</li>
+            <li class="profile__list-item">— [경력3 placeholder]</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+    <!-- ===== 섹션 6. 대표 노무사 끝 ===== -->
+
+
+    <!-- ============================================================
+         섹션 7. Insights / 칼럼
+         - 이해 노무사가 직접 쓰는 노동법 가이드 칼럼 카드 3개.
+         - 라이트 톤 배경 (--paper-soft), 데스크톱 3열 그리드.
+         ============================================================ -->
+    <section id="insights" class="insights" aria-labelledby="insights-title">
+      <div class="insights__inner container">
+
+        <!-- 헤드 + 우측 상단 "전체 칼럼 보기" 링크 -->
+        <header class="insights__head">
+          <div class="insights__head-left">
+            <span class="insights__eyebrow reveal">INSIGHTS · 칼럼</span>
+            <h2 id="insights-title" class="insights__title reveal">오늘, 일터에서 알아두어야 할 것</h2>
+            <p class="insights__lead reveal">
+              이해 노무사가 직접 쓰는 노동법 가이드. 한 달에 두 편씩 업데이트됩니다.
+            </p>
+          </div>
+          <a class="insights__more reveal" href="#">전체 칼럼 보기 →</a>
+        </header>
+
+        <!-- 카드 그리드 (3개) -->
+        <div class="insights__grid">
+
+          <!-- 칼럼 01: 부당해고 -->
+          <article class="insights__card reveal">
+            <a class="insights__card-link" href="#">
+              <div class="insights__card-thumb" role="img" aria-label="이미지 준비 중">
+                <span class="insights__card-thumb-text">이미지 준비 중</span>
+              </div>
+              <div class="insights__card-body">
+                <span class="insights__card-category">부당해고</span>
+                <h3 class="insights__card-title">“권고사직 동의서”에 사인하면 끝일까요?</h3>
+                <p class="insights__card-excerpt">
+                  회사가 내미는 권고사직 동의서, 그 안에 숨어 있는 4가지 위험 조항과 사인 전 반드시 확인해야 할 체크리스트.
+                </p>
+                <p class="insights__card-meta">이해 노무사 · 2026.04.27</p>
+              </div>
+            </a>
+          </article>
+
+          <!-- 칼럼 02: 임금체불 -->
+          <article class="insights__card reveal">
+            <a class="insights__card-link" href="#">
+              <div class="insights__card-thumb" role="img" aria-label="이미지 준비 중">
+                <span class="insights__card-thumb-text">이미지 준비 중</span>
+              </div>
+              <div class="insights__card-body">
+                <span class="insights__card-category">임금체불</span>
+                <h3 class="insights__card-title">통상임금에 빠지기 쉬운 5가지 항목</h3>
+                <p class="insights__card-excerpt">
+                  명절 상여금, 식대, 차량유지비… 사업주가 흔히 빼먹는 항목들. 통상임금에 포함되는지 한눈에 확인하는 가이드.
+                </p>
+                <p class="insights__card-meta">이해 노무사 · 2026.04.27</p>
+              </div>
+            </a>
+          </article>
+
+          <!-- 칼럼 03: 산업재해 -->
+          <article class="insights__card reveal">
+            <a class="insights__card-link" href="#">
+              <div class="insights__card-thumb" role="img" aria-label="이미지 준비 중">
+                <span class="insights__card-thumb-text">이미지 준비 중</span>
+              </div>
+              <div class="insights__card-body">
+                <span class="insights__card-category">산업재해</span>
+                <h3 class="insights__card-title">업무상 스트레스, 산재로 인정받는 조건</h3>
+                <p class="insights__card-excerpt">
+                  과로·괴롭힘으로 인한 정신질환의 산재 신청, 어디서부터 시작해야 할까요? 인정 기준과 준비 서류를 정리했습니다.
+                </p>
+                <p class="insights__card-meta">이해 노무사 · 2026.04.27</p>
+              </div>
+            </a>
+          </article>
+
+        </div>
+      </div>
+    </section>
+    <!-- ===== 섹션 7. Insights 끝 ===== -->
+
+
+    <!-- ============================================================
+         섹션 8. Contact / 오시는 길
+         - 좌측: 사무소 정보(주소·전화·이메일·운영시간·접수) + CTA 2개.
+         - 우측: 지도 placeholder (향후 카카오맵/네이버맵 임베드 자리).
+         ============================================================ -->
+    <section id="contact" class="contact" aria-labelledby="contact-title">
+      <div class="contact__inner container">
+
+        <!-- 좌측 정보 영역 -->
+        <div class="contact__info">
+          <span class="contact__eyebrow reveal">CONTACT · 오시는 길</span>
+          <h2 id="contact-title" class="contact__title reveal">가장 가까운 곳에서, 가장 정확하게.</h2>
+
+          <!-- 사무소 정보 리스트 (의미상 dl) -->
+          <address class="contact__address">
+            <dl class="contact__list reveal">
+              <div class="contact__row">
+                <dt class="contact__label">주소</dt>
+                <dd class="contact__value">[시·군·구] [도로명 주소 placeholder], ○○빌딩 ○층</dd>
+              </div>
+              <div class="contact__row">
+                <dt class="contact__label">전화</dt>
+                <dd class="contact__value"><a href="tel:0200000000">02-0000-0000</a></dd>
+              </div>
+              <div class="contact__row">
+                <dt class="contact__label">이메일</dt>
+                <dd class="contact__value"><a href="mailto:contact@leehae.kr">contact@leehae.kr</a></dd>
+              </div>
+              <div class="contact__row">
+                <dt class="contact__label">운영시간</dt>
+                <dd class="contact__value">평일 09:00 – 18:00 / 점심 12:30 – 13:30 / 주말·공휴일 휴무</dd>
+              </div>
+              <div class="contact__row">
+                <dt class="contact__label">사건 접수</dt>
+                <dd class="contact__value">24시간 (AI 상담 + 온라인 폼)</dd>
+              </div>
+            </dl>
+          </address>
+
+          <!-- CTA 영역 (전화 / 온라인 폼) -->
+          <div class="contact__cta reveal">
+            <a class="btn btn--primary btn--lg" href="tel:0200000000">전화 상담 (02-0000-0000)</a>
+            <a class="btn btn--ghost btn--lg" href="#contact">온라인 상담 폼</a>
+          </div>
+        </div>
+
+        <!-- 우측 지도 영역 (placeholder) -->
+        <div class="contact__map reveal" role="img" aria-label="사무소 위치 지도 준비 중">
+          <span class="contact__map-text">지도 준비 중</span>
+        </div>
+
+      </div>
+    </section>
+    <!-- ===== 섹션 8. Contact 끝 ===== -->
+
   </main>
 
-  <!--
-    ===============================================================
-    5) 푸터(Footer): 사무소 소개/연락처/면책 문구
-    ---------------------------------------------------------------
-    아래 주소·연락처는 예시 데이터입니다.
-    실제 운영 시 사무소 정보로 교체해 주세요. (TODO: 실제 정보로 교체)
-    ===============================================================
-  -->
-  <footer id="contact" class="site-footer" role="contentinfo">
-    <div class="container site-footer__inner">
 
-      <div class="site-footer__col">
-        <h2 class="site-footer__brand">노동법률사무소 이해</h2>
-        <p class="site-footer__tag">
-          24시간 AI 상담으로 시작해, 필요할 때 전문 노무사로 이어지는 든든한 동반자.
+  <!-- ============================================================
+       섹션 9. Footer
+       - 다크 미니 푸터. 워드마크·메뉴 / 사업자 정보 / 면책+카피라이트 3행.
+       - #footer-year 의 연도는 JS가 페이지 로드 시 자동 갱신합니다.
+       ============================================================ -->
+  <footer id="site-footer" class="footer" role="contentinfo">
+    <div class="footer__inner container">
+
+      <!-- 1행: 워드마크 + 메뉴 -->
+      <div class="footer__top">
+        <a class="footer__mark" href="#hero" aria-label="노동법률사무소 이해 홈으로">leehae</a>
+        <nav class="footer__nav" aria-label="푸터 메뉴">
+          <ul class="footer__nav-list">
+            <li><a class="footer__nav-link" href="#about">철학</a></li>
+            <li><a class="footer__nav-link" href="#practice">업무분야</a></li>
+            <li><a class="footer__nav-link" href="#process">진행절차</a></li>
+            <li><a class="footer__nav-link" href="#insights">칼럼</a></li>
+            <li><a class="footer__nav-link" href="#contact">오시는 길</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- 2행: 사업자 정보 -->
+      <address class="footer__business">
+        <p>노동법률사무소 이해 · 대표 노무사 [성함 placeholder]</p>
+        <p>사업자등록번호 [000-00-00000 placeholder] · 노무사 등록번호 [제○○○호 placeholder]</p>
+        <p>주소 [도로명 placeholder] · 대표전화 02-0000-0000</p>
+      </address>
+
+      <!-- 3행: 면책 + 카피라이트 -->
+      <div class="footer__legal">
+        <p class="footer__disclaimer">
+          본 사이트의 모든 콘텐츠는 일반적인 정보 제공을 목적으로 하며, 개별 사건의 법률 자문을 대신하지 않습니다. 구체적인 사안은 반드시 노무사와의 직접 상담을 통해 판단하시기 바랍니다.
+        </p>
+        <p class="footer__copyright">
+          © <span id="footer-year">2026</span> LEEHAE Labor Law Office. All rights reserved.
         </p>
       </div>
 
-      <!-- TODO: 아래 주소/전화/이메일은 예시값입니다. 운영 시 실제 정보로 교체하세요. -->
-      <div class="site-footer__col">
-        <h3 class="site-footer__title">오시는 길 · 연락처</h3>
-        <address class="site-footer__address">
-          <p><strong>주소</strong> 서울특별시 서초구 서초대로 000, 0층 (예시)</p>
-          <p><strong>전화</strong> <a href="tel:0212345678">02-1234-5678</a> (예시)</p>
-          <p><strong>이메일</strong> <a href="mailto:contact@ihae-labor.example">contact@ihae-labor.example</a> (예시)</p>
-        </address>
-      </div>
-
-      <div class="site-footer__col">
-        <h3 class="site-footer__title">상담 안내</h3>
-        <ul class="site-footer__list">
-          <li>AI 상담: 24시간 · 365일</li>
-          <li>대면/전화 상담: 평일 09:00 ~ 18:00</li>
-          <li>주말 · 공휴일: AI 상담 가능</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- 면책 문구: 가장 눈에 띄도록 별도 영역으로 분리 -->
-    <div class="site-footer__disclaimer">
-      <div class="container">
-        <p>
-          본 AI 상담은 참고용이며 법적 효력을 갖지 않습니다.
-          정확한 법률 자문은 전문 노무사와 상담하시기 바랍니다.
-        </p>
-        <p class="site-footer__copy">
-          © <span id="footer-year">2026</span> 노동법률사무소 이해. All rights reserved.
-        </p>
-      </div>
     </div>
   </footer>
+  <!-- ===== 섹션 9. Footer 끝 ===== -->
+
+
+  <!-- ============================================================
+       Floating AI 챗 버튼 (FAB)
+       - 우측 하단 고정. 클릭 시 .chatbot-modal 을 엽니다.
+       - 모바일에서는 Hero(80vh) 통과 후부터 표시됩니다 (JS가 제어).
+       ============================================================ -->
+  <button class="chatbot-fab" type="button" aria-label="AI 노무 상담 열기" data-chatbot-open>
+    <!-- 인라인 SVG 말풍선 아이콘 -->
+    <svg class="chatbot-fab__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+    <!-- 호버 시 우측에 슬라이드되는 라벨 칩 -->
+    <span class="chatbot-fab__label">AI 노무 상담</span>
+  </button>
+
+
+  <!-- ============================================================
+       AI 챗 모달
+       - 평소엔 hidden 으로 DOM에만 존재. .chatbot-modal--open 클래스가 붙으면 노출됩니다.
+       - 내부에 #api-key-section / #chat-container 두 영역이 있습니다.
+         (localStorage에 키가 있으면 chat 영역 표시, 없으면 키 입력 영역 표시)
+       - js/app.js, js/gemini-api.js 가 이 DOM에 로직을 부착합니다.
+       ============================================================ -->
+  <div class="chatbot-modal" role="dialog" aria-modal="true" aria-labelledby="chatbot-title" hidden>
+    <!-- 배경 오버레이 (클릭 시 모달 닫힘) -->
+    <div class="chatbot-modal__overlay" data-chatbot-close></div>
+
+    <!-- 모달 박스 (실제 컨텐츠) -->
+    <div class="chatbot-modal__box">
+
+      <!-- 모달 헤더: 타이틀 + 닫기 -->
+      <header class="chatbot-modal__header">
+        <div class="chatbot-modal__title-group">
+          <span class="chatbot-modal__avatar" aria-hidden="true"></span>
+          <div class="chatbot-modal__title-text">
+            <h3 id="chatbot-title" class="chatbot-modal__title">이해 AI 노무 상담</h3>
+            <span class="chatbot-modal__sub">24시간 · Google Gemini 기반</span>
+          </div>
+        </div>
+        <button class="chatbot-modal__close" type="button" aria-label="닫기" data-chatbot-close>×</button>
+      </header>
+
+      <!-- API 키 입력 영역 (최초 1회 또는 키 누락 시 표시) -->
+      <section id="api-key-section" class="chatbot-modal__api-key">
+        <p class="chatbot-modal__api-key-desc">
+          처음 사용하시나요? Gemini API 키를 입력해 주세요. 키는 이 브라우저에만 안전하게 저장됩니다.
+        </p>
+        <div class="chatbot-modal__api-key-form">
+          <input id="api-key-input" type="password" placeholder="AIza..." autocomplete="off" aria-label="Gemini API 키" />
+          <button id="api-key-save-btn" type="button" class="btn btn--primary btn--sm">저장하고 시작하기</button>
+        </div>
+        <p class="chatbot-modal__api-key-hint">
+          API 키 발급은 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>에서 무료로 가능합니다.
+        </p>
+      </section>
+
+      <!-- 채팅 본체 영역 -->
+      <section id="chat-container" class="chatbot-modal__chat" hidden>
+        <!-- 메시지 리스트 (JS가 동적으로 버블을 추가) -->
+        <div id="chat-messages" class="chatbot-modal__messages" role="log" aria-live="polite" aria-label="대화 내역"></div>
+
+        <!-- 입력 폼 -->
+        <form id="chat-form" class="chatbot-modal__form" autocomplete="off">
+          <input id="chat-input" type="text" placeholder="궁금한 내용을 적어 주세요" autocomplete="off" required aria-label="메시지 입력" />
+          <button id="chat-send-btn" type="submit" class="chatbot-modal__send" aria-label="전송">→</button>
+        </form>
+
+        <!-- 채팅 영역 하단의 작은 보조 버튼: API 키 변경 -->
+        <div class="chatbot-modal__chat-tools">
+          <button type="button" class="chatbot-modal__reset-key" data-chatbot-reset-key>API 키 변경</button>
+        </div>
+      </section>
+
+      <!-- 모달 풋터: 면책 안내 -->
+      <footer class="chatbot-modal__footer">
+        본 AI 답변은 일반 정보 제공이며, 정식 법률 자문이 아닙니다. 구체적 사안은 직접 상담을 권장드립니다.
+      </footer>
+
+    </div>
+  </div>
+  <!-- ===== AI 챗 모달 끝 ===== -->
+
 
   <!--
-    ===============================================================
-    JavaScript 연결
-    ---------------------------------------------------------------
-    - gemini-api.js : Google Gemini API 호출 로직 (다른 에이전트가 작성)
-    - app.js        : UI 동작 / 채팅 흐름 제어 (다른 에이전트가 작성)
-    body 끝에 두는 이유: HTML이 모두 그려진 뒤에 JS가 실행되도록 하기 위함.
-    ===============================================================
+    JS 스크립트 로드 (지정된 순서 그대로 유지)
+    - scroll-fx.js : 헤더 토글, 스크롤 reveal, Process sticky 인터랙션
+    - modal.js     : 챗 모달 열고닫기, ESC·오버레이 처리, 포커스 트랩
+    - gemini-api.js: Gemini API 키 저장·검증, 메시지 송수신
+    - app.js       : 위 모듈들을 연결하고 전체 페이지 초기화
   -->
-  <script src="js/gemini-api.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/scroll-fx.js"></script>
+  <script type="module" src="js/modal.js"></script>
+  <script type="module" src="js/gemini-api.js"></script>
+  <script type="module" src="js/app.js"></script>
+
 </body>
 </html>
