@@ -754,35 +754,42 @@ blockquote {
    - --progress (0~1) JS가 업데이트 → 카드 transform 변화
    ============================================================ */
 
-/* Process 섹션 — 4뷰포트 길이 */
+/* Process 섹션 — 가로 4단계 row 레이아웃 + 배경 이미지
+   상담·합의 분위기의 사진을 깔되, 흰색 오버레이 92%로 가독성 확보. */
 .process {
   position: relative;
-  background: var(--paper-soft);
   color: var(--ink);
-  height: 400vh;
+  padding: var(--section-py) 0;
+  background-color: var(--paper-soft);
+  background-image:
+    linear-gradient(180deg, rgba(244, 246, 250, 0.94) 0%, rgba(244, 246, 250, 0.98) 100%),
+    url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* sticky 컨테이너 — 100vh 고정 */
+/* 헤드 영역만 사진이 살짝 비치도록 별도 처리 (옵션) */
+.process__head {
+  position: relative;
+  z-index: 1;
+}
+
+/* 기존 sticky 래퍼 — 일반 블록으로 전환 (영향 무) */
 .process__sticky,
 .process__pin {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
+  position: static;
+  height: auto;
+  display: block;
 }
 
-/* sticky 내부 컨테이너 */
+/* 내부 컨테이너 */
 .process__inner {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-7);
   align-items: stretch;
-  height: 100%;
-  padding-block: var(--space-9);
 }
 
 /* Process 상단 헤드 (eyebrow + 타이틀) */
@@ -810,56 +817,67 @@ blockquote {
   color: var(--ink);
 }
 
-/* Process 무대 영역 — 카드 4개가 겹쳐서 쌓이는 공간 */
+/* Process 카드 그리드 — 모바일 1열, 태블릿 2열, 데스크톱 4열 */
 .process__stages {
   position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  perspective: 1200px; /* 3D 효과를 위한 원근 */
-  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  margin-top: var(--space-7);
 }
 
-/* 카드 4개 공통 — 절대 위치로 한 자리에 겹쳐둠 */
+@media (min-width: 768px) {
+  .process__stages {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .process__stages {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+/* 단계 카드 — 흰 배경, 가로 그리드 안에 단순 배치 */
 .process__stage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: calc(100% - var(--space-5) * 2);
-  max-width: 720px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   background: #FFFFFF;
   border: 1px solid var(--line);
-  border-radius: 24px;
-  padding: var(--space-7) var(--space-6);
-  box-shadow: 0 30px 60px -30px rgba(10, 22, 40, 0.15);
-  transform-style: preserve-3d;
-  transition: opacity 400ms ease,
-              transform 600ms var(--ease-out-expo);
-  /* 비활성 기본 — 아래에서 살짝 들어와 있음 (3D rotateY 적용) */
-  opacity: 0;
-  transform: translate(-50%, calc(-50% + 40px)) scale(0.96) rotateY(8deg);
-  z-index: 0;
+  border-radius: 20px;
+  padding: var(--space-6) var(--space-5);
+  box-shadow: 0 20px 40px -25px rgba(10, 22, 40, 0.12);
+  transition: transform 280ms var(--ease-out-expo),
+              box-shadow 280ms ease,
+              border-color 280ms ease;
+  opacity: 1;
+  transform: none;
+  height: 100%;
+}
+
+/* 호버 시 살짝 떠오르는 인터랙션 (Apple 라이크) */
+.process__stage:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -25px rgba(10, 22, 40, 0.18);
+  border-color: rgba(30, 64, 175, 0.18);
 }
 
 @media (min-width: 768px) {
   .process__stage {
-    padding: var(--space-8) var(--space-7);
+    padding: var(--space-7) var(--space-6);
   }
 }
 
-/* 활성 카드 — 전면, 정자세 (translateZ로 3D 스택 가장 앞) */
-.process__stage[data-active="true"] {
+/* 가로 레이아웃에서는 모두 동시에 보임 — data-active 별도 강조 X (호버로만 처리) */
+.process__stage[data-active="true"],
+.process__stage[data-active="past"],
+.process__stage[data-active="false"] {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1) rotateY(0deg) translateZ(0);
-  z-index: 2;
-}
-
-/* 지나간 카드 — 위로 페이드아웃 (3D로 살짝 뒤로) */
-.process__stage[data-active="past"] {
-  opacity: 0;
-  transform: translate(-50%, calc(-50% - 40px)) scale(0.96) rotateY(-8deg);
-  z-index: 1;
+  transform: none;
+  box-shadow: 0 20px 40px -25px rgba(10, 22, 40, 0.12);
 }
 
 /* 카드 내부 헤더 (라벨 + 번호) */
@@ -907,12 +925,9 @@ blockquote {
   color: var(--silver);
 }
 
-/* 진행 도트 4개 — 하단 가운데 */
+/* 진행 도트 — 가로 레이아웃에서는 불필요해서 숨김 */
 .process__progress {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-3);
+  display: none;
 }
 
 /* 도트 기본 */
@@ -930,32 +945,52 @@ blockquote {
   background: var(--primary);
 }
 
-/* Process 하단 KPI 숫자 (마지막 stage 또는 head 옆) */
+/* Process 하단 핵심 지표 — 4단계 그리드 아래 별도 한 줄 (3분할)
+   stage 카드 밖에 위치하므로 충분한 너비 확보 가능 */
 .process__metrics {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-5);
-  margin-top: var(--space-6);
+  margin-top: var(--space-8);
+  padding-top: var(--space-7);
+  border-top: 1px solid var(--line);
   text-align: center;
 }
 @media (min-width: 768px) {
   .process__metrics { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* KPI 큰 숫자 */
-.process__metric-value {
-  font-size: var(--fs-h1);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--primary);
-  line-height: 1;
-  margin-bottom: var(--space-2);
+/* 한 지표 = 라벨(작게) + 값(크게) 세로 스택 */
+.process__metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-/* KPI 라벨 */
+/* 라벨이 위, 값이 아래 — dl 의 dt/dd 순서가 그대로 시각 순서 */
 .process__metric-label {
+  order: 1;
   font-size: var(--fs-small);
   color: var(--silver);
+  line-height: 1.4;
+}
+
+/* 큰 값 — 좁은 컬럼에서도 깨지지 않도록 clamp + word-break 보정 */
+.process__metric-value {
+  order: 2;
+  font-size: clamp(2rem, 4vw, 3rem); /* h1 보다 작게, 컬럼 너비에 비례 */
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  line-height: 1.1;
+  word-break: keep-all; /* 한글 단어 단위 줄바꿈 (글자 가운데 끊기지 않게) */
+  white-space: nowrap;  /* "평균 14일" 같은 짧은 값은 한 줄 유지 */
+}
+
+/* 매우 좁은 화면에서는 nowrap 해제해서 줄바꿈 허용 */
+@media (max-width: 480px) {
+  .process__metric-value { white-space: normal; }
 }
 
 
